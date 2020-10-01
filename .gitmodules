@@ -1,0 +1,3 @@
+[submodule "deps/libwally-core"]
+	path = deps/libwally-core
+	url = git@github.com:jollyjoker992/libwally-core.git
