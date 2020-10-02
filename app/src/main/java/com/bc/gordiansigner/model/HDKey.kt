@@ -1,0 +1,63 @@
+package com.bc.gordiansigner.model
+
+import com.bc.gordiansigner.helper.Network
+import com.blockstream.libwally.Wally
+import com.blockstream.libwally.Wally.*
+
+class HDKey {
+
+    private val rootKey: Any
+
+    constructor(key: Any, network: Network) {
+        rootKey = key
+        this.network = network
+    }
+
+    constructor(seed: ByteArray, network: Network) {
+        this.network = network
+        rootKey = bip32_key_from_seed(
+            seed, (if (network == Network.TEST) {
+                BIP32_VER_TEST_PRIVATE
+            } else {
+                BIP32_VER_MAIN_PRIVATE
+            }).toLong(), 0
+        )
+    }
+
+    constructor(rootXpriv: String) {
+        rootKey = bip32_key_from_base58(rootXpriv)
+        network = if (rootXpriv.contains("xprv")) Network.MAIN else Network.TEST
+    }
+
+    val network: Network
+
+    val xprv get() = bip32_key_to_base58(rootKey, BIP32_FLAG_KEY_PRIVATE.toLong())
+
+    val xpub get() = bip32_key_to_base58(rootKey, BIP32_FLAG_KEY_PUBLIC.toLong())
+
+    val fingerprint get() = bip32_key_get_fingerprint(rootKey)
+
+    val fingerprintHex get() = hex_from_bytes(fingerprint)
+
+    val privKey get() = bip32_key_get_priv_key(rootKey)
+
+    val pubKey get() = bip32_key_get_pub_key(rootKey)
+
+    fun derive(derivationPath: String) : HDKey {
+        val path = Regex("\\d+").findAll(derivationPath)
+            .map(MatchResult::value)
+            .map { Wally.BIP32_INITIAL_HARDENED_CHILD + it.toInt() }
+            .toList()
+            .toIntArray()
+
+        return HDKey(
+            bip32_key_from_parent_path(
+                rootKey,
+                path,
+                BIP32_FLAG_KEY_PRIVATE.toLong()
+            ),
+            network
+        )
+    }
+
+}
