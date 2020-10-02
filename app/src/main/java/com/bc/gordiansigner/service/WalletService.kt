@@ -1,7 +1,7 @@
 package com.bc.gordiansigner.service
 
-import com.bc.gordiansigner.helper.Bip39
 import com.bc.gordiansigner.helper.Network
+import com.bc.gordiansigner.model.Bip39Mnemonic
 import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.service.storage.FileStorageApi
 import com.bc.gordiansigner.service.storage.SharedPrefApi
@@ -17,16 +17,17 @@ class WalletService @Inject constructor(
 
     fun importHDKeyWallet(mnemonic: String, network: Network): Single<HDKey> {
         return Single.fromCallable {
-            val seed = Bip39.seedFromMnemonic(mnemonic)
+            val seed = Bip39Mnemonic(mnemonic).seed
             HDKey(seed, network)
-        }.subscribeOn(Schedulers.io())
+        }.subscribeOn(Schedulers.computation())
     }
 
     fun generateHDKeyWallet(network: Network): Single<HDKey> {
-        val entropy = ByteArray(16)
-        SecureRandom().nextBytes(entropy)
-        val mnemonic = Bip39.mnemonicFromBytes(entropy)
-
-        return importHDKeyWallet(mnemonic, network)
+        return Single.fromCallable {
+            val entropy = ByteArray(16)
+            SecureRandom().nextBytes(entropy)
+            val seed = Bip39Mnemonic(entropy).seed
+            HDKey(seed, network)
+        }.subscribeOn(Schedulers.computation())
     }
 }

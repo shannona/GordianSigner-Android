@@ -1,14 +1,13 @@
 package com.bc.gordiansigner.model
 
 import com.bc.gordiansigner.helper.Network
-import com.blockstream.libwally.Wally
 import com.blockstream.libwally.Wally.*
 
 class HDKey {
 
     private val rootKey: Any
 
-    constructor(key: Any, network: Network) {
+    private constructor(key: Any, network: Network) {
         rootKey = key
         this.network = network
     }
@@ -26,27 +25,27 @@ class HDKey {
 
     constructor(rootXpriv: String) {
         rootKey = bip32_key_from_base58(rootXpriv)
-        network = if (rootXpriv.contains("xprv")) Network.MAIN else Network.TEST
+        network = if (rootXpriv.startsWith("xprv")) Network.MAIN else Network.TEST
     }
 
     val network: Network
 
-    val xprv get() = bip32_key_to_base58(rootKey, BIP32_FLAG_KEY_PRIVATE.toLong())
+    val xprv: String get() = bip32_key_to_base58(rootKey, BIP32_FLAG_KEY_PRIVATE.toLong())
 
-    val xpub get() = bip32_key_to_base58(rootKey, BIP32_FLAG_KEY_PUBLIC.toLong())
+    val xpub: String get() = bip32_key_to_base58(rootKey, BIP32_FLAG_KEY_PUBLIC.toLong())
 
-    val fingerprint get() = bip32_key_get_fingerprint(rootKey)
+    val fingerprint: ByteArray get() = bip32_key_get_fingerprint(rootKey)
 
-    val fingerprintHex get() = hex_from_bytes(fingerprint)
+    val fingerprintHex: String get() = hex_from_bytes(fingerprint)
 
-    val privKey get() = bip32_key_get_priv_key(rootKey)
+    val privKey: ByteArray get() = bip32_key_get_priv_key(rootKey)
 
-    val pubKey get() = bip32_key_get_pub_key(rootKey)
+    val pubKey: ByteArray get() = bip32_key_get_pub_key(rootKey)
 
-    fun derive(derivationPath: String) : HDKey {
+    fun derive(derivationPath: String): HDKey {
         val path = Regex("\\d+").findAll(derivationPath)
             .map(MatchResult::value)
-            .map { Wally.BIP32_INITIAL_HARDENED_CHILD + it.toInt() }
+            .map { BIP32_INITIAL_HARDENED_CHILD + it.toInt() }
             .toList()
             .toIntArray()
 

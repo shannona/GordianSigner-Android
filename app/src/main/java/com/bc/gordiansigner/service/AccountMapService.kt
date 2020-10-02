@@ -27,7 +27,7 @@ class AccountMapService @Inject constructor(
             val descriptor = Descriptor.fromString(accountMap.descriptor)
 
             Pair(accountMap, descriptor)
-        }.subscribeOn(Schedulers.io())
+        }.subscribeOn(Schedulers.computation())
 
     fun fillPartialAccountMap(
         accountMap: AccountMap,
@@ -40,10 +40,11 @@ class AccountMapService @Inject constructor(
             }
             AccountMap(descriptor.toString(), accountMap.blockheight, accountMap.label)
         }
+            .subscribeOn(Schedulers.computation())
             .flatMap { saveAccountMap(it) }
             .map {
                 newGsonInstance().toJson(it)
             }
-            .subscribeOn(Schedulers.io())
+            .subscribeOn(Schedulers.computation())
     }
 }
