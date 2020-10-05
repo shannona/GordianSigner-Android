@@ -1,5 +1,7 @@
 package com.bc.gordiansigner.di
 
+import com.bc.gordiansigner.ui.add_account.AddAccountActivity
+import com.bc.gordiansigner.ui.add_account.AddAccountModule
 import com.bc.gordiansigner.ui.main.MainActivity
 import com.bc.gordiansigner.ui.main.MainModule
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapActivity
@@ -17,4 +19,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [ShareAccountMapModule::class])
     @ActivityScope
     internal abstract fun bindShareAccountMapActivity(): ShareAccountMapActivity
+
+    @ContributesAndroidInjector(modules = [AddAccountModule::class])
+    @ActivityScope
+    internal abstract fun bindAddAccountActivity(): AddAccountActivity
 }

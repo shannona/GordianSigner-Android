@@ -15,4 +15,5 @@ inline fun <reified T> Gson.fromJson(json: String) =
 inline fun <reified T> Gson.toJson(value: T) =
     this.toJson(value, object : TypeToken<T>() {}.type)
 
-fun newGsonInstance() = Gson().newBuilder().excludeFieldsWithoutExposeAnnotation().create()
+fun newGsonInstance() =
+    Gson().newBuilder().disableHtmlEscaping().excludeFieldsWithoutExposeAnnotation().create()

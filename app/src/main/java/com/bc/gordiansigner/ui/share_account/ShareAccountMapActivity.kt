@@ -20,15 +20,10 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        //TODO: Hardcoded test data
-        val mnemonic = "modify tip timber tissue mandate april title unable valley spawn athlete harsh"
-        val accountMapJson = "{\n" +
-                "\"descriptor\":\"wsh(sortedmulti(2,[83hf9h94/48h/0h/0h/2h]xpub6CMZuJmP86KE8gaLyDNCQJWWzfGvWfDPhepzBG3keCLZPZ6XPXzsU82ms8BZwCUVR2UxrsDRa2YQ6nSmYbASTqadhRDp2qqd37UvFksA3wT,[<fingerprint>/48h/0h/0h/2h]<xpub>,[<fingerprint>/48h/0h/0h/2h]<xpub>))\",\n" +
-                "\"blockheight\":1781992,\n" +
-                "\"label\":\"warm test\"\n" +
-                "}"
-
-        viewModel.updateAccountMap(accountMapJson, mnemonic)
+        buttonFill.setOnClickListener {
+            val accountMapJson = editText.text.toString()
+            viewModel.updateAccountMap(accountMapJson)
+        }
     }
 
     override fun observe() {
@@ -42,6 +37,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
                 res.isError() -> {
                     Log.d("ShareAccountMapActivity", res.throwable()?.message ?: "")
+                    tvResult.text = res.throwable()?.message
                 }
             }
         })
