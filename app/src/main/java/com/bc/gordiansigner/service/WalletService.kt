@@ -3,8 +3,8 @@ package com.bc.gordiansigner.service
 import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.model.Bip39Mnemonic
 import com.bc.gordiansigner.model.HDKey
-import com.bc.gordiansigner.service.storage.FileStorageApi
-import com.bc.gordiansigner.service.storage.SharedPrefApi
+import com.bc.gordiansigner.service.storage.file.FileStorageApi
+import com.bc.gordiansigner.service.storage.sharedpref.SharedPrefApi
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.security.SecureRandom

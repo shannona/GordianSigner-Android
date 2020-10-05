@@ -5,6 +5,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.bc.gordiansigner.service.storage.file.FileStorageApi
 import com.bc.gordiansigner.service.storage.file.rxCompletable
 import com.bc.gordiansigner.service.storage.file.rxSingle
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -13,13 +15,25 @@ class FileStorageTest {
 
     private val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
+    private lateinit var filePrefix: String
+
+    @Before
+    fun beforeEach() {
+        filePrefix = "${System.currentTimeMillis()}"
+    }
+
+    @After
+    fun afterEach() {
+        appContext.filesDir.listFiles()?.let { files -> files.forEach { it.deleteRecursively() } }
+    }
+
     @Test
     fun testReadWriteStandardFileGateway() {
         val dataSet =
             mapOf(
-                "test.txt" to "test_content_1",
-                "test.key" to "      ",
-                "test" to "valvalvalvalvalvalvalvalvalvalvalval"
+                "$filePrefix-test.txt" to "test_content_1",
+                "$filePrefix-test.key" to "      ",
+                "$filePrefix-test" to "valvalvalvalvalvalvalvalvalvalvalval"
             )
 
         for (d in dataSet.entries) {
@@ -45,9 +59,9 @@ class FileStorageTest {
     fun testReadWriteSecureFileGateway() {
         val dataSet =
             mapOf(
-                "test_secure.txt" to "test_content_1",
-                "test_secure.key" to "      ",
-                "test_secure" to "valvalvalvalvalvalvalvalvalvalvalval"
+                "$filePrefix-test_secure.txt" to "test_content_1",
+                "$filePrefix-test_secure.key" to "      ",
+                "$filePrefix-test_secure" to "valvalvalvalvalvalvalvalvalvalvalval"
             )
 
         for (d in dataSet.entries) {
