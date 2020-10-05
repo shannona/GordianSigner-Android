@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">Gordian Signer</string>
-
     <string name="confirm_account">Confirm Account</string>
     <string name="import_account">Import Account</string>
     <string name="sign_psbt">Sign PSBT</string>
