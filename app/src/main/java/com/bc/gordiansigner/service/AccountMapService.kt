@@ -4,8 +4,8 @@ import com.bc.gordiansigner.helper.ext.newGsonInstance
 import com.bc.gordiansigner.model.AccountMap
 import com.bc.gordiansigner.model.Descriptor
 import com.bc.gordiansigner.model.HDKey
-import com.bc.gordiansigner.service.storage.FileStorageApi
-import com.bc.gordiansigner.service.storage.SharedPrefApi
+import com.bc.gordiansigner.service.storage.file.FileStorageApi
+import com.bc.gordiansigner.service.storage.sharedpref.SharedPrefApi
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject

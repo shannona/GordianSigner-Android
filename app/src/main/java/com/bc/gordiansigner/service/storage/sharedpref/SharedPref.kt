@@ -1,19 +1,14 @@
-package com.bc.gordiansigner.service.storage
+package com.bc.gordiansigner.service.storage.sharedpref
 
-import android.content.Context
 import android.content.SharedPreferences
-import com.bc.gordiansigner.BuildConfig
 import com.bc.gordiansigner.helper.ext.newGsonInstance
+import io.reactivex.Completable
+import io.reactivex.Single
 import kotlin.reflect.KClass
 
-class SharedPrefGateway internal constructor(
-    context: Context
-) {
+abstract class SharedPref internal constructor() {
 
-    private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences(
-            BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE
-        )
+    internal abstract val sharedPreferences: SharedPreferences
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> get(key: String, type: KClass<T>, default: Any? = null): T {
@@ -65,3 +60,8 @@ class SharedPrefGateway internal constructor(
         sharedPreferences.edit().clear().apply()
     }
 }
+
+fun <T> SharedPref.rxSingle(action: (SharedPref) -> T) = Single.fromCallable { action(this) }
+
+fun SharedPref.rxCompletable(action: (SharedPref) -> Unit) =
+    Completable.fromCallable { action(this) }
