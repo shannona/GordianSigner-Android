@@ -1,8 +1,7 @@
 package com.bc.gordiansigner.model
 
 import com.bc.gordiansigner.helper.Network
-import com.blockstream.libwally.Wally.psbt_from_base64
-import com.blockstream.libwally.Wally.psbt_sign
+import com.blockstream.libwally.Wally.*
 
 class Psbt(base64: String, val network: Network) {
 
@@ -15,4 +14,6 @@ class Psbt(base64: String, val network: Network) {
     fun sign(hdKey: HDKey) {
         psbt_sign(psbt, hdKey.privKey, 0)
     }
+
+    fun toBase64(): String = psbt_to_base64(psbt, 0)
 }

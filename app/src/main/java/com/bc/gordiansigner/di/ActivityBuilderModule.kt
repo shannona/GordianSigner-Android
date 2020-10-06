@@ -6,6 +6,8 @@ import com.bc.gordiansigner.ui.main.MainActivity
 import com.bc.gordiansigner.ui.main.MainModule
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapActivity
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapModule
+import com.bc.gordiansigner.ui.sign.PsbtSignActivity
+import com.bc.gordiansigner.ui.sign.PsbtSignModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -23,4 +25,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [AddAccountModule::class])
     @ActivityScope
     internal abstract fun bindAddAccountActivity(): AddAccountActivity
+
+    @ContributesAndroidInjector(modules = [PsbtSignModule::class])
+    @ActivityScope
+    internal abstract fun bindPsbtSignActivity(): PsbtSignActivity
 }
