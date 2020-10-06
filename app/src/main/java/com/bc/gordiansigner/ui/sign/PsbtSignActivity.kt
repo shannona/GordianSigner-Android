@@ -1,43 +1,45 @@
-package com.bc.gordiansigner.ui.share_account
+package com.bc.gordiansigner.ui.sign
 
 import android.util.Log
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
-import kotlinx.android.synthetic.main.activity_share_account_map.*
+import kotlinx.android.synthetic.main.activity_psbt_sign.*
 import javax.inject.Inject
 
-class ShareAccountMapActivity : BaseAppCompatActivity() {
+class PsbtSignActivity : BaseAppCompatActivity() {
 
     @Inject
-    internal lateinit var viewModel: ShareAccountMapViewModel
+    internal lateinit var viewModel: PsbtSignViewModel
 
-    override fun layoutRes() = R.layout.activity_share_account_map
+    override fun layoutRes() = R.layout.activity_psbt_sign
 
     override fun viewModel() = viewModel
+
 
     override fun initComponents() {
         super.initComponents()
 
-        title = "Fill Account Map"
+        title = "PSBT Signer"
 
-        buttonFill.setOnClickListener {
+        buttonNext.setOnClickListener {
             val accountMapJson = editText.text.toString()
-            viewModel.updateAccountMap(accountMapJson)
+            viewModel.signPsbt(accountMapJson, Network.TEST)
         }
     }
 
     override fun observe() {
         super.observe()
 
-        viewModel.accountMapLiveData.asLiveData().observe(this, Observer { res ->
+        viewModel.psbtLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
                     tvResult.text = res.data()
                 }
 
                 res.isError() -> {
-                    Log.d("ShareAccountMapActivity", res.throwable()?.message ?: "")
+                    Log.d("PsbtSignActivity", res.throwable()?.message ?: "")
                     tvResult.text = res.throwable()?.message
                 }
             }

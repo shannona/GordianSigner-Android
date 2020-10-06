@@ -49,14 +49,14 @@ class HDKey {
             .toList()
             .toIntArray()
 
-        return HDKey(
+        return if (path.isNotEmpty()) HDKey(
             bip32_key_from_parent_path(
                 rootKey,
                 path,
                 BIP32_FLAG_KEY_PRIVATE.toLong()
             ),
             network
-        )
+        ) else this
     }
 
 }
