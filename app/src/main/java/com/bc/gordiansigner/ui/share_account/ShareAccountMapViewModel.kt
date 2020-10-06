@@ -6,6 +6,7 @@ import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.service.AccountMapService
 import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
+import io.reactivex.Single
 
 class ShareAccountMapViewModel(
     lifecycle: Lifecycle,
@@ -16,17 +17,20 @@ class ShareAccountMapViewModel(
 
     internal val accountMapLiveData = CompositeLiveData<String>()
 
-    //Todo: Test function for update partial account map
-    fun updateAccountMap(accountMapString: String, mnemonic: String) {
+    fun updateAccountMap(accountMapString: String) {
         accountMapLiveData.add(rxLiveDataTransformer.single(
             accountMapService.getAccountMapInfo(accountMapString)
                 .flatMap { (accountMap, descriptor) ->
-                    walletService.importHDKeyWallet(mnemonic, descriptor.network).flatMap { hdKey ->
-                        accountMapService.fillPartialAccountMap(
-                            accountMap,
-                            descriptor,
-                            hdKey
-                        )
+                    walletService.getLocalHDKeyXprvs().flatMap { hdKeys ->
+                        if (hdKeys.isNotEmpty()) {
+                            accountMapService.fillPartialAccountMap(
+                                accountMap,
+                                descriptor,
+                                hdKeys.first()
+                            )
+                        } else {
+                            Single.error(Throwable("Missing account, you need to import an account first!"))
+                        }
                     }
                 }
         ))

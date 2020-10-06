@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Gordian Signer</string>
+
+    <string name="import_failed_please_review_your_12">Import failed, please review your 12 recovery words and try again!</string>
 </resources>
