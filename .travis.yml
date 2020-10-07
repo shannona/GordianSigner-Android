@@ -36,6 +36,7 @@ env:
 jobs:
   include:
     - stage: deploy
+      if: branch = master AND type = push
       env: TEST=false DEPLOY=true
       install: skip
 
@@ -138,9 +139,13 @@ install:
 script:
   - sudo ./scripts/build-libwally-core.sh >/dev/null
   - if [ $TEST = true ]; then ./gradlew clean testInhouseDebugUnitTest connectedInhouseDebugAndroidTest; fi
-  - if [[ $DEPLOY = true && $TRAVIS_PULL_REQUEST == "false" ]]; then ./gradlew clean -x test assembleInhouseDebug appCenterUploadInhouseDebug; else echo 'Ignored due to testing or PR'; fi
+  - if [ $DEPLOY = true ]; then ./gradlew clean -x test assembleInhouseDebug appCenterUploadInhouseDebug; else echo 'Ignored due to testing or PR or non-master branch'; fi
 
 notifications:
   email:
     - hieupham@bitmark.com
     - hien@bitmark.com
+
+branches:
+  only:
+    - master
