@@ -4,6 +4,7 @@ import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.helper.ext.replaceSpaces
+import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import kotlinx.android.synthetic.main.activity_add_account.*
 import javax.inject.Inject
@@ -20,7 +21,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        buttonNext.setOnClickListener {
+        buttonNext.setSafetyOnclickListener {
             editText.text?.replaceSpaces()?.let { phrase ->
                 viewModel.importWallet(phrase, Network.TEST)
             }

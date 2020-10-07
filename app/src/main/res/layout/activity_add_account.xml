@@ -13,7 +13,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="32dp"
         android:lines="4"
-        android:hint="input your 12 recovery words"
+        android:hint="@string/input_your_12_recovery_words"
         android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@+id/buttonNext"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,7 +24,7 @@
         android:layout_width="80dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="16dp"
-        android:text="NEXT"
+        android:text="@string/next"
         app:layout_constraintBottom_toBottomOf="@id/editText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/editText" />

@@ -1,5 +1,14 @@
 <resources>
     <string name="app_name">Gordian Signer</string>
 
+    <string name="confirm_account">Confirm Account</string>
+    <string name="import_account">Import Account</string>
+    <string name="sign_psbt">Sign PSBT</string>
+    <string name="input_your_account_map_json">Input your account map json</string>
+    <string name="input_psbt_to_sign">input PSBT to sign</string>
+    <string name="input_your_12_recovery_words">input your 12 recovery words</string>
     <string name="import_failed_please_review_your_12">Import failed, please review your 12 recovery words and try again!</string>
+    <string name="fill">FILL</string>
+    <string name="sign">SIGN</string>
+    <string name="next">NEXT</string>
 </resources>

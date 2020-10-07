@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="32dp"
-        android:hint="input PSBT to sign"
+        android:hint="@string/input_psbt_to_sign"
         android:lines="4"
         android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@+id/buttonNext"
@@ -24,18 +24,29 @@
         android:layout_width="80dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="16dp"
-        android:text="SIGN"
+        android:text="@string/sign"
         app:layout_constraintBottom_toBottomOf="@id/editText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/editText" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/buttonCopy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@android:string/copy"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editText" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvResult"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:textIsSelectable="true"
-        app:layout_constraintTop_toBottomOf="@id/editText" />
+        app:layout_constraintTop_toBottomOf="@id/buttonCopy" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
