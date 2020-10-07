@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: "com.betomorrow.appcenter"
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -21,14 +22,107 @@ android {
         jniLibs.srcDir 'src/main/libs/jni'
     }
 
+    splits {
+        abi {
+            reset()
+            enable project.hasProperty('splitApks')
+            universalApk false // If true, also generate a universal APK
+            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        }
+    }
+
+    bundle {
+        density {
+            // Different APKs are generated for devices with different screen densities; true by default.
+            enableSplit false
+        }
+        abi {
+            // Different APKs are generated for devices with different CPU architectures; true by default.
+            enableSplit true
+        }
+        language {
+            // This is disabled so that the App Bundle does NOT split the APK for each language.
+            // We're gonna use the same APK for all languages.
+            enableSplit false
+        }
+    }
+
     androidExtensions {
         experimental = true
     }
 
-    buildTypes {
+    signingConfigs {
+
+        debug {
+            def keystorePropertiesFile = rootProject.file(
+                    "keystores/debug.properties")
+            def keystoreProperties = new Properties()
+            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            keyAlias keystoreProperties['key.alias']
+            keyPassword keystoreProperties['key.alias.password']
+            storeFile file('../keystores/debug.keystore')
+            storePassword keystoreProperties['key.store.password']
+        }
+
         release {
+            def keystorePropertiesFile = rootProject.file(
+                    "keystores/release.properties")
+            def keystoreProperties = new Properties()
+            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            keyAlias keystoreProperties['key.alias']
+            keyPassword keystoreProperties['key.alias.password']
+            storeFile file('../keystores/release.keystore')
+            storePassword keystoreProperties['key.store.password']
+        }
+    }
+
+    buildTypes {
+
+        debug {
+            debuggable true
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
+
+        release {
+            minifyEnabled true
+            shrinkResources true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile("proguard-android.txt"),
+                    "proguard-rules.pro"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    flavorDimensions "env"
+
+    productFlavors {
+
+        inhouse {
+            dimension "env"
+            applicationIdSuffix ".inhouse"
+            resValue "string", "app_name", "Gordian Signer Inhouse"
+            manifestPlaceholders = [
+                    appIcon                        : "@mipmap/ic_launcher",
+                    appIconRound                   : "@mipmap/ic_launcher_round",
+            ]
+        }
+
+        prd {
+            dimension "env"
+            resValue "string", "app_name", "Gordian Signer"
+            manifestPlaceholders = [
+                    appIcon                        : "@mipmap/ic_launcher",
+                    appIconRound                   : "@mipmap/ic_launcher_round",
+            ]
         }
     }
 }
@@ -65,4 +159,21 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+}
+
+appcenter {
+    def keyPropertiesFile = rootProject.file('app-center.properties')
+    def keyProperties = new Properties()
+    keyProperties.load(new FileInputStream(keyPropertiesFile))
+
+    apiToken = keyProperties["api-key"]
+    ownerName = "support-zzd0-28"
+    distributionGroups = ["Bitmark", "Public Tester"]
+    notifyTesters = true
+    apps {
+        inhouse {
+            dimension = "env"
+            appName = "GordianSigner-Android"
+        }
+    }
 }

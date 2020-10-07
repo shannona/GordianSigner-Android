@@ -103,5 +103,7 @@ output.json
 .DS_Store
 libwallycore.so
 Wally.java
+keystores/release.*
+*.properties
 
 # End of Specific for project

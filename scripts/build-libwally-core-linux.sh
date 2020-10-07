@@ -7,7 +7,7 @@ apt-get update
 source $PWD/scripts/deps-helper.sh
 
 for dep in "${DEPS[@]}"; do
-  if [[ $(dpkg -s $dep &>/dev/null) -eq 0 ]]; then
+  if [[ $(dpkg -s $dep 2>/dev/null) -ne "" ]]; then
     echo "Package $dep already installed"
   else
     echo "Installing $dep..."
