@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.Network
+import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import kotlinx.android.synthetic.main.activity_psbt_sign.*
 import javax.inject.Inject
@@ -23,9 +24,14 @@ class PsbtSignActivity : BaseAppCompatActivity() {
 
         title = "PSBT Signer"
 
-        buttonNext.setOnClickListener {
+        buttonNext.setSafetyOnclickListener {
             val accountMapJson = editText.text.toString()
             viewModel.signPsbt(accountMapJson, Network.TEST)
+        }
+
+        buttonCopy.setSafetyOnclickListener {
+            this.copyToClipboard(tvResult.text.toString())
+            buttonCopy.animateWithString("Copied")
         }
     }
 
@@ -35,11 +41,13 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         viewModel.psbtLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
+                    buttonCopy.visible()
                     tvResult.text = res.data()
                 }
 
                 res.isError() -> {
                     Log.d("PsbtSignActivity", res.throwable()?.message ?: "")
+                    buttonCopy.gone()
                     tvResult.text = res.throwable()?.message
                 }
             }
