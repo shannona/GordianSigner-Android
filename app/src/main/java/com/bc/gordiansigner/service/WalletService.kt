@@ -35,23 +35,36 @@ class WalletService @Inject constructor(
     }
 
     /** BEGIN -- simple mechanism getting & saving account by storing XPRVS **/
+
     fun getLocalHDKeyXprvs() =
         sharedPrefApi.SECURE.rxSingle { sharedPref ->
             sharedPref.sharedPreferences.getStringSet(ROOT_XPRV_KEYS, emptySet())
         }.map { set -> set.map { HDKey(it) } }
 
-    fun saveHDKeyXprv(hdKey: HDKey) = getLocalHDKeyXprvs().map {
-        it.toMutableSet().apply {
-            add(hdKey)
+    fun saveHDKeyXprv(hdKey: HDKey) =
+        getLocalHDKeyXprvs().map {
+            it.toMutableSet().apply {
+                add(hdKey)
+            }
+        }.flatMapCompletable { keys ->
+            saveHDKeyXprvs(keys)
+        }.andThen(Single.just(hdKey))
+
+    fun deleteKey(fingerprintHex: String) =
+        getLocalHDKeyXprvs().map {
+            it.filter { key -> key.fingerprintHex != fingerprintHex }.toSet()
+        }.flatMapCompletable { keys ->
+            saveHDKeyXprvs(keys)
         }
-    }.flatMapCompletable { keys ->
+
+    private fun saveHDKeyXprvs(keys: Set<HDKey>) =
         sharedPrefApi.SECURE.rxCompletable { sharedPref ->
             sharedPref.sharedPreferences
                 .edit()
                 .putStringSet(ROOT_XPRV_KEYS, keys.map { it.xprv }.toSet())
                 .apply()
         }
-    }.andThen(Single.just(hdKey))
+
     /** END - simple mechanism getting & saving account by storing XPRVS **/
 
 }

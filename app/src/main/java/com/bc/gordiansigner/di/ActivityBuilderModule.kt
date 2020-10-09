@@ -1,5 +1,7 @@
 package com.bc.gordiansigner.di
 
+import com.bc.gordiansigner.ui.account.AccountsActivity
+import com.bc.gordiansigner.ui.account.AccountsModule
 import com.bc.gordiansigner.ui.add_account.AddAccountActivity
 import com.bc.gordiansigner.ui.add_account.AddAccountModule
 import com.bc.gordiansigner.ui.main.MainActivity
@@ -29,4 +31,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [PsbtSignModule::class])
     @ActivityScope
     internal abstract fun bindPsbtSignActivity(): PsbtSignActivity
+
+    @ContributesAndroidInjector(modules = [AccountsModule::class])
+    @ActivityScope
+    internal abstract fun bindAccountsActivity(): AccountsActivity
 }

@@ -7,7 +7,7 @@ import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.BaseViewModel
-import com.bc.gordiansigner.ui.add_account.AddAccountActivity
+import com.bc.gordiansigner.ui.account.AccountsActivity
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapActivity
 import com.bc.gordiansigner.ui.sign.PsbtSignActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -26,7 +26,7 @@ class MainActivity : BaseAppCompatActivity() {
         super.initComponents()
 
         buttonImportAccount.setSafetyOnclickListener {
-            val intent = Intent(this, AddAccountActivity::class.java)
+            val intent = Intent(this, AccountsActivity::class.java)
             startActivity(intent)
         }
 
@@ -56,7 +56,7 @@ class MainActivity : BaseAppCompatActivity() {
                         buttonImportAccount.setCompoundDrawablesWithIntrinsicBounds(
                             0,
                             0,
-                            R.drawable.ic_baseline_check_circle_24,
+                            R.drawable.ic_check_circle_24,
                             0
                         )
                     }

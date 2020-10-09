@@ -9,4 +9,8 @@
     <string name="fill">FILL</string>
     <string name="sign">SIGN</string>
     <string name="next">NEXT</string>
+    <string name="gordian_signers">Gordian Signers</string>
+    <string name="add">Add</string>
+    <string name="edit">Edit</string>
+    <string name="done">Done</string>
 </resources>
