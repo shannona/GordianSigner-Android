@@ -15,4 +15,6 @@ class FileStorageApi @Inject constructor(context: Context) {
 
     val SECURE = lazy { SecureFileGateway(context) }.value
 
+    val SUPER_SECURE = lazy { SuperSecureFileGateway(context) }.value
+
 }

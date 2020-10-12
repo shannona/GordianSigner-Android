@@ -4,11 +4,12 @@ import android.content.SharedPreferences
 import com.bc.gordiansigner.helper.ext.newGsonInstance
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import kotlin.reflect.KClass
 
 abstract class SharedPref internal constructor() {
 
-    internal abstract val sharedPreferences: SharedPreferences
+    protected abstract val sharedPreferences: SharedPreferences
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> get(key: String, type: KClass<T>, default: Any? = null): T {
@@ -33,6 +34,7 @@ abstract class SharedPref internal constructor() {
                 key,
                 default as? Long ?: 0
             ) as T
+            Set::class -> sharedPreferences.getStringSet(key, setOf()) as T
             else -> newGsonInstance().fromJson(
                 sharedPreferences.getString(key, ""), type.java
             )
@@ -47,6 +49,7 @@ abstract class SharedPref internal constructor() {
             is Float -> editor.putFloat(key, data as Float)
             is Int -> editor.putInt(key, data as Int)
             is Long -> editor.putLong(key, data as Long)
+            is Set<*> -> editor.putStringSet(key, data as Set<String>)
             else -> editor.putString(key, newGsonInstance().toJson(data))
         }
         editor.apply()
@@ -61,7 +64,8 @@ abstract class SharedPref internal constructor() {
     }
 }
 
-fun <T> SharedPref.rxSingle(action: (SharedPref) -> T) = Single.fromCallable { action(this) }
+fun <T> SharedPref.rxSingle(action: (SharedPref) -> T) =
+    Single.fromCallable { action(this) }.subscribeOn(Schedulers.io())
 
 fun SharedPref.rxCompletable(action: (SharedPref) -> Unit) =
-    Completable.fromCallable { action(this) }
+    Completable.fromCallable { action(this) }.subscribeOn(Schedulers.io())

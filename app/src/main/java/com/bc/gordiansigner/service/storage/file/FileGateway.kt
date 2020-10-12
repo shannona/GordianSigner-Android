@@ -3,6 +3,7 @@ package com.bc.gordiansigner.service.storage.file
 import android.content.Context
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import java.io.File
 
 abstract class FileGateway(protected val context: Context) {
@@ -32,7 +33,8 @@ abstract class FileGateway(protected val context: Context) {
     fun deleteOnFilesDir(name: String): Boolean = delete(File(context.filesDir, name).absolutePath)
 }
 
-fun <T> FileGateway.rxSingle(action: (FileGateway) -> T) = Single.fromCallable { action(this) }
+fun <T> FileGateway.rxSingle(action: (FileGateway) -> T) =
+    Single.fromCallable { action(this) }.subscribeOn(Schedulers.io())
 
 fun FileGateway.rxCompletable(action: (FileGateway) -> Unit) =
-    Completable.fromCallable { action(this) }
+    Completable.fromCallable { action(this) }.subscribeOn(Schedulers.io())
