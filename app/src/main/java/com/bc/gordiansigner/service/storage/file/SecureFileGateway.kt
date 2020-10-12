@@ -6,9 +6,13 @@ import androidx.security.crypto.MasterKeys
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-class SecureFileGateway internal constructor(context: Context) : FileGateway(context) {
+/**
+ * This level of security uses Android Keystore system to encrypt/decrypt the file content.
+ * The key never enters to the app process so it's secure even the phone could get hack.
+ */
+open class SecureFileGateway internal constructor(context: Context) : FileGateway(context) {
 
-    private val MASTER_KEY_ALIAS = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+    protected open val MASTER_KEY_ALIAS = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
 
     override fun write(path: String, name: String, data: ByteArray) {
         val file = getEncryptedFile("$path/$name")

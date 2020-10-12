@@ -7,17 +7,11 @@ class SharedPrefApi @Inject constructor(
     context: Context
 ) {
 
-    val STANDARD = lazy {
-        StandardSharedPref(
-            context
-        )
-    }.value
+    val STANDARD = lazy { StandardSharedPref(context) }.value
 
-    val SECURE = lazy {
-        SecureSharedPref(
-            context
-        )
-    }.value
+    val SECURE = lazy { SecureSharedPref(context) }.value
+
+    val SUPER_SECURE = lazy { SuperSecureSharedPref(context) }.value
 }
 
 

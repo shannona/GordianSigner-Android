@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import com.bc.gordiansigner.helper.ext.newGsonInstance
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import kotlin.reflect.KClass
 
 abstract class SharedPref internal constructor() {
@@ -63,7 +64,8 @@ abstract class SharedPref internal constructor() {
     }
 }
 
-fun <T> SharedPref.rxSingle(action: (SharedPref) -> T) = Single.fromCallable { action(this) }
+fun <T> SharedPref.rxSingle(action: (SharedPref) -> T) =
+    Single.fromCallable { action(this) }.subscribeOn(Schedulers.io())
 
 fun SharedPref.rxCompletable(action: (SharedPref) -> Unit) =
-    Completable.fromCallable { action(this) }
+    Completable.fromCallable { action(this) }.subscribeOn(Schedulers.io())

@@ -4,10 +4,13 @@ import android.app.KeyguardManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 
@@ -82,3 +85,7 @@ fun Context.getFileName(uri: Uri): String {
         cursor.getString(sizeIndex)
     } ?: ""
 }
+
+@RequiresApi(Build.VERSION_CODES.P)
+fun Context.isStrongboxBacked() =
+    packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)
