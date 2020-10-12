@@ -8,6 +8,7 @@ import com.bc.gordiansigner.model.Psbt
 import com.bc.gordiansigner.service.TransactionService
 import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
+import io.reactivex.Completable
 import io.reactivex.Single
 
 class PsbtSignViewModel(
@@ -23,6 +24,15 @@ class PsbtSignViewModel(
     }
 
     internal val psbtLiveData = CompositeLiveData<String>()
+    internal val psbtCheckingLiveData = CompositeLiveData<Any>()
+
+    fun checkPsbt(base64: String, network: Network = Network.TEST) {
+        psbtCheckingLiveData.add(rxLiveDataTransformer.completable(
+            Completable.fromCallable {
+                Psbt(base64, network)
+            }
+        ))
+    }
 
     fun signPsbt(base64: String, network: Network) {
         psbtLiveData.add(rxLiveDataTransformer.single(

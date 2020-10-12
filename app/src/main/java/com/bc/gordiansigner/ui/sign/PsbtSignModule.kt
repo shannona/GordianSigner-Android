@@ -4,6 +4,7 @@ import com.bc.gordiansigner.di.ActivityScope
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.service.TransactionService
 import com.bc.gordiansigner.service.WalletService
+import com.bc.gordiansigner.ui.DialogController
 import dagger.Module
 import dagger.Provides
 
@@ -23,4 +24,9 @@ class PsbtSignModule {
         transactionService,
         rxLiveDataTransformer
     )
+
+
+    @ActivityScope
+    @Provides
+    fun provideDialogController(activity: PsbtSignActivity) = DialogController(activity)
 }

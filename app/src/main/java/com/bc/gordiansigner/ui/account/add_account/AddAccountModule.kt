@@ -1,4 +1,4 @@
-package com.bc.gordiansigner.ui.add_account
+package com.bc.gordiansigner.ui.account.add_account
 
 import com.bc.gordiansigner.di.ActivityScope
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer

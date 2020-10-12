@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.share_account.ShareAccountMapActivity">
+    android:background="@color/colorPrimary">
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/editText"
@@ -14,6 +13,8 @@
         android:layout_marginTop="32dp"
         android:hint="@string/input_your_account_map_json"
         android:lines="5"
+        android:textColor="@color/white"
+        android:textColorHint="@color/gray"
         android:textSize="12sp"
         app:layout_constraintEnd_toStartOf="@+id/buttonFill"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,7 +25,9 @@
         android:layout_width="80dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="16dp"
+        android:background="@drawable/grey_rounded_background"
         android:text="@string/fill"
+        android:textColor="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="@id/editText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/editText" />
@@ -34,6 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:background="@drawable/grey_rounded_background"
         android:text="@android:string/copy"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"

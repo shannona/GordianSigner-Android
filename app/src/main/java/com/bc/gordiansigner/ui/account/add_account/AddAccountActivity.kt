@@ -1,4 +1,4 @@
-package com.bc.gordiansigner.ui.add_account
+package com.bc.gordiansigner.ui.account.add_account
 
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R

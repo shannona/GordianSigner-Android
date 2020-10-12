@@ -16,6 +16,15 @@ class ShareAccountMapViewModel(
 ) : BaseViewModel(lifecycle) {
 
     internal val accountMapLiveData = CompositeLiveData<String>()
+    internal val accountMapStatusLiveData = CompositeLiveData<Any>()
+
+    fun checkValidAccountMap(string: String) {
+        accountMapStatusLiveData.add(
+            rxLiveDataTransformer.completable(
+                accountMapService.getAccountMapInfo(string).ignoreElement()
+            )
+        )
+    }
 
     fun updateAccountMap(accountMapString: String) {
         accountMapLiveData.add(rxLiveDataTransformer.single(

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
-import com.bc.gordiansigner.ui.add_account.AddAccountActivity
+import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
 import kotlinx.android.synthetic.main.activity_accounts.*
 import javax.inject.Inject
 
@@ -29,7 +29,6 @@ class AccountsActivity : BaseAppCompatActivity() {
 
         title = "Accounts"
 
-        supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         adapter = AccountRecyclerViewAdapter { fingerprint ->
