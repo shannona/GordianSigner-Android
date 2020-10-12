@@ -2,10 +2,12 @@ package com.bc.gordiansigner.di
 
 import com.bc.gordiansigner.ui.account.AccountsActivity
 import com.bc.gordiansigner.ui.account.AccountsModule
-import com.bc.gordiansigner.ui.add_account.AddAccountActivity
-import com.bc.gordiansigner.ui.add_account.AddAccountModule
+import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
+import com.bc.gordiansigner.ui.account.add_account.AddAccountModule
 import com.bc.gordiansigner.ui.main.MainActivity
 import com.bc.gordiansigner.ui.main.MainModule
+import com.bc.gordiansigner.ui.scan.QRScannerActivity
+import com.bc.gordiansigner.ui.scan.QRScannerModule
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapActivity
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapModule
 import com.bc.gordiansigner.ui.sign.PsbtSignActivity
@@ -35,4 +37,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [AccountsModule::class])
     @ActivityScope
     internal abstract fun bindAccountsActivity(): AccountsActivity
+
+    @ContributesAndroidInjector(modules = [QRScannerModule::class])
+    @ActivityScope
+    internal abstract fun bindQRScannerActivity(): QRScannerActivity
 }

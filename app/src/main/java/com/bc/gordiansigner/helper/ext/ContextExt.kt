@@ -2,6 +2,7 @@ package com.bc.gordiansigner.helper.ext
 
 import android.app.KeyguardManager
 import android.content.ClipData
+import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -14,11 +15,21 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 
+
 fun Context.copyToClipboard(text: String) {
     val clipboardManager =
         getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("", text)
     clipboardManager.setPrimaryClip(clip)
+}
+
+fun Context.pasteFromClipBoard(): String? {
+    val clipboardManager =
+        getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    return if (clipboardManager.hasPrimaryClip() && clipboardManager.primaryClipDescription?.hasMimeType(MIMETYPE_TEXT_PLAIN) == true) {
+        val item = clipboardManager.primaryClip?.getItemAt(0)
+        item?.text?.toString()
+    } else null
 }
 
 fun Context.getResIdentifier(resName: String, classifier: String) = try {

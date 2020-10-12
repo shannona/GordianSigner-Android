@@ -1,6 +1,5 @@
 package com.bc.gordiansigner.ui.account
 
-import android.content.Intent
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -9,7 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
-import com.bc.gordiansigner.ui.add_account.AddAccountActivity
+import com.bc.gordiansigner.ui.Navigator
+import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
+import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
 import kotlinx.android.synthetic.main.activity_accounts.*
 import javax.inject.Inject
 
@@ -17,6 +18,9 @@ class AccountsActivity : BaseAppCompatActivity() {
 
     @Inject
     internal lateinit var viewModel: AccountsViewModel
+
+    @Inject
+    internal lateinit var navigator: Navigator
 
     private lateinit var adapter: AccountRecyclerViewAdapter
 
@@ -29,7 +33,6 @@ class AccountsActivity : BaseAppCompatActivity() {
 
         title = "Accounts"
 
-        supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         adapter = AccountRecyclerViewAdapter { fingerprint ->
@@ -94,11 +97,10 @@ class AccountsActivity : BaseAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                finish()
+                navigator.anim(RIGHT_LEFT).finishActivity()
             }
             R.id.action_add -> {
-                val intent = Intent(this, AddAccountActivity::class.java)
-                startActivity(intent)
+                navigator.anim(RIGHT_LEFT).startActivity(AddAccountActivity::class.java)
             }
             R.id.action_edit -> {
                 adapter.isEditing = !adapter.isEditing
