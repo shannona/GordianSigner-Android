@@ -2,6 +2,7 @@ package com.bc.gordiansigner.service.storage
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.bc.gordiansigner.RxTest
 import com.bc.gordiansigner.service.storage.sharedpref.SharedPrefApi
 import com.bc.gordiansigner.service.storage.sharedpref.rxCompletable
 import com.bc.gordiansigner.service.storage.sharedpref.rxSingle
@@ -10,7 +11,7 @@ import org.junit.runner.RunWith
 import kotlin.reflect.KClass
 
 @RunWith(AndroidJUnit4::class)
-class SharePrefTest {
+class SharePrefTest : RxTest() {
 
     private val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
