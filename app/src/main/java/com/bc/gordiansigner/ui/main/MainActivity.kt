@@ -1,12 +1,13 @@
 package com.bc.gordiansigner.ui.main
 
-import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.BaseViewModel
+import com.bc.gordiansigner.ui.Navigator
+import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import com.bc.gordiansigner.ui.account.AccountsActivity
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapActivity
 import com.bc.gordiansigner.ui.sign.PsbtSignActivity
@@ -18,6 +19,9 @@ class MainActivity : BaseAppCompatActivity() {
     @Inject
     internal lateinit var viewModel: MainViewModel
 
+    @Inject
+    internal lateinit var navigator: Navigator
+
     override fun layoutRes(): Int = R.layout.activity_main
 
     override fun viewModel(): BaseViewModel? = viewModel
@@ -26,18 +30,15 @@ class MainActivity : BaseAppCompatActivity() {
         super.initComponents()
 
         buttonImportAccount.setSafetyOnclickListener {
-            val intent = Intent(this, AccountsActivity::class.java)
-            startActivity(intent)
+            navigator.anim(RIGHT_LEFT).startActivity(AccountsActivity::class.java)
         }
 
         buttonConfirmAccount.setSafetyOnclickListener {
-            val intent = Intent(this, ShareAccountMapActivity::class.java)
-            startActivity(intent)
+            navigator.anim(RIGHT_LEFT).startActivity(ShareAccountMapActivity::class.java)
         }
 
         buttonSignPsbt.setSafetyOnclickListener {
-            val intent = Intent(this, PsbtSignActivity::class.java)
-            startActivity(intent)
+            navigator.anim(RIGHT_LEFT).startActivity(PsbtSignActivity::class.java)
         }
     }
 

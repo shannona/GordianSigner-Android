@@ -10,6 +10,8 @@ import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
+import com.bc.gordiansigner.ui.Navigator
+import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import com.bc.gordiansigner.ui.account.AccountsActivity
 import com.bc.gordiansigner.ui.scan.QRScannerActivity
 import kotlinx.android.synthetic.main.activity_share_account_map.*
@@ -23,6 +25,9 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
     @Inject
     internal lateinit var viewModel: ShareAccountMapViewModel
+
+    @Inject
+    internal lateinit var navigator: Navigator
 
     @Inject
     internal lateinit var dialogController: DialogController
@@ -93,11 +98,13 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                finish()
+                navigator.anim(RIGHT_LEFT).finishActivity()
             }
             R.id.action_scan -> {
-                val intent = Intent(this, QRScannerActivity::class.java)
-                startActivityForResult(intent, REQUEST_CODE_QR_ACCOUNT_MAP)
+                navigator.anim(RIGHT_LEFT).startActivityForResult(
+                    QRScannerActivity::class.java,
+                    REQUEST_CODE_QR_ACCOUNT_MAP
+                )
             }
             R.id.action_paste -> {
                 this.pasteFromClipBoard()?.let {
@@ -105,8 +112,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                 } ?: dialogController.alert(R.string.error, R.string.clipboard_is_empty)
             }
             R.id.action_signer -> {
-                val intent = Intent(this, AccountsActivity::class.java)
-                startActivity(intent)
+                navigator.anim(RIGHT_LEFT).startActivity(AccountsActivity::class.java)
             }
         }
 

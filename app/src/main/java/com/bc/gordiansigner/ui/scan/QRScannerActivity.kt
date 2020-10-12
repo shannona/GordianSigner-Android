@@ -1,16 +1,15 @@
 package com.bc.gordiansigner.ui.scan
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
-import android.util.Log
 import android.view.MenuItem
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.ext.openAppSetting
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.BaseViewModel
 import com.bc.gordiansigner.ui.DialogController
+import com.bc.gordiansigner.ui.Navigator
+import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.ResultPoint
 import com.journeyapps.barcodescanner.BarcodeCallback
@@ -33,6 +32,9 @@ class QRScannerActivity : BaseAppCompatActivity() {
 
         fun extractResultData(intent: Intent): String = intent.getStringExtra(QR_CODE_STRING) ?: ""
     }
+
+    @Inject
+    internal lateinit var navigator: Navigator
 
     @Inject
     internal lateinit var dialogController: DialogController
@@ -64,13 +66,7 @@ class QRScannerActivity : BaseAppCompatActivity() {
                             R.string.to_get_started_allow_access_camera,
                             R.string.enable_access
                         ) {
-                            try {
-                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                val uri = Uri.fromParts("package", this.packageName, null)
-                                intent.data = uri
-                                startActivity(intent)
-                            } catch (ignore: Throwable) {
-                            }
+                            navigator.openAppSetting(this)
                         }
                     }
                 }
@@ -78,13 +74,11 @@ class QRScannerActivity : BaseAppCompatActivity() {
 
         val formats = listOf(BarcodeFormat.QR_CODE)
         scannerView.decoderFactory = DefaultDecoderFactory(formats)
-        scannerView.decodeSingle(object : BarcodeCallback {
+        scannerView.decodeContinuous(object : BarcodeCallback {
             override fun barcodeResult(result: BarcodeResult?) {
                 result?.text?.let {
-                    Log.d("QRScannerActivity", it)
                     val intent = Intent().apply { putExtra(QR_CODE_STRING, it) }
-                    this@QRScannerActivity.setResult(Activity.RESULT_OK, intent)
-                    finish()
+                    navigator.finishActivityForResult(intent)
                 }
             }
 
@@ -98,7 +92,7 @@ class QRScannerActivity : BaseAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                finish()
+                navigator.anim(RIGHT_LEFT).finishActivity()
             }
         }
 
