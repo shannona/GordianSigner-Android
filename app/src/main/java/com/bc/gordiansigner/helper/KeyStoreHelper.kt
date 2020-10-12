@@ -34,7 +34,7 @@ object KeyStoreHelper {
             .setUserAuthenticationRequired(true)
             .setUserAuthenticationParameters(60, KeyProperties.AUTH_BIOMETRIC_STRONG)
             .setKeySize(keySize)
-        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.P && context.isStrongboxBacked()) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P && context.isStrongboxBacked()) {
             builder.setIsStrongBoxBacked(true)
         }
         return builder.build()
