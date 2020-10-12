@@ -38,8 +38,8 @@ class WalletService @Inject constructor(
 
     fun getLocalHDKeyXprvs() =
         sharedPrefApi.SECURE.rxSingle { sharedPref ->
-            sharedPref.sharedPreferences.getStringSet(ROOT_XPRV_KEYS, emptySet())
-        }.map { set -> set.map { HDKey(it) } }
+            sharedPref.get(ROOT_XPRV_KEYS, Set::class)
+        }.map { set -> set.map { HDKey(it as String) } }
 
     fun saveHDKeyXprv(hdKey: HDKey) =
         getLocalHDKeyXprvs().map {
@@ -59,10 +59,7 @@ class WalletService @Inject constructor(
 
     private fun saveHDKeyXprvs(keys: Set<HDKey>) =
         sharedPrefApi.SECURE.rxCompletable { sharedPref ->
-            sharedPref.sharedPreferences
-                .edit()
-                .putStringSet(ROOT_XPRV_KEYS, keys.map { it.xprv }.toSet())
-                .apply()
+            sharedPref.put(ROOT_XPRV_KEYS, keys.map { it.xprv }.toSet())
         }
 
     /** END - simple mechanism getting & saving account by storing XPRVS **/
