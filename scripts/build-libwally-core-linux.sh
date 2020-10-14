@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 echo "Install dependencies"
-DEPS=(clang swig libtool automake openjdk-8-jdk)
+DEPS=(clang swig libtool automake openjdk-8-jdk wget)
 
 apt-get update
 source $PWD/scripts/deps-helper.sh
@@ -17,13 +17,13 @@ done
 
 echo "Checking NDK path..."
 NDK_VERSION="r19c"
-NDK_HOME=~/android-ndk-$NDK_VERSION
+NDK_HOME=$HOME/android-ndk-$NDK_VERSION
 NDK_PATH=$(check_ndk_path $NDK_VERSION)
 echo "NDK path: $NDK_PATH"
 if [ "$NDK_PATH" == "" ]; then
   echo "Installing NDK"
-  pushd ~/ || exit
-  install_ndk_linux $NDK_VERSION
+  pushd "$HOME" || exit
+  install_ndk $NDK_VERSION
   popd || exit
 else
   echo "NDK has been installed at $NDK_PATH"

@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 echo "Install dependencies"
-DEPS=(swig libtool automake gnu-sed)
+DEPS=(swig libtool automake gnu-sed wget)
 
 source $PWD/scripts/deps-helper.sh
 
@@ -18,7 +18,7 @@ JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null)
 echo "Java home: $JAVA_HOME"
 if [ "$JAVA_HOME" == "" ]; then
   echo "Installing JDK..."
-  pushd ~/ || exit
+  pushd "$HOME" || exit
   install_java8_mac
   JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home"
   popd || exit
@@ -35,13 +35,13 @@ fi
 
 echo "Checking NDK path..."
 NDK_VERSION="r19c"
-NDK_HOME=~/android-ndk-$NDK_VERSION
+NDK_HOME=$HOME/android-ndk-$NDK_VERSION
 NDK_PATH=$(check_ndk_path $NDK_VERSION)
 echo "NDK path: $NDK_PATH"
 if [ "$NDK_PATH" == "" ]; then
   echo "Installing NDK..."
-  pushd ~/ || exit
-  install_ndk_mac $NDK_VERSION
+  pushd "$HOME" || exit
+  install_ndk $NDK_VERSION
   popd || exit
 else
   echo "NDK has been installed at $NDK_PATH"
