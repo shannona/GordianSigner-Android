@@ -6,7 +6,7 @@ function install_ndk() {
   if [[ "$(uname)" == "Darwin" ]]; then
     FILE="android-ndk-$NDK_VERSION-darwin-x86_64.zip"
   fi
-  wget -O "$FILE" "https://dl.google.com/android/repository/$FILE"
+  wget -O "$FILE" -q "https://dl.google.com/android/repository/$FILE"
   unzip "$FILE" >/dev/null
 }
 
@@ -20,6 +20,6 @@ function check_ndk_path() {
 function install_java8_mac() {
   FILE=OpenJDK8U-jdk_x64_mac_hotspot_8u265b01.pkg
   rm "$FILE"
-  wget -O "$FILE" "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u265-b01/$FILE"
+  wget -O "$FILE" -q "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u265-b01/$FILE"
   sudo installer -pkg $FILE -target /
 }
