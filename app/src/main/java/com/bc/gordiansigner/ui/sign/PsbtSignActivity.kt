@@ -62,7 +62,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
     override fun observe() {
         super.observe()
 
-        viewModel.psbtLiveData.asLiveData().observe(this, Observer { res ->
+        viewModel.psbtSigningLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
                     editText.setText(res.data())
