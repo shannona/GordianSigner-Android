@@ -36,9 +36,8 @@ class PsbtSignViewModel(
             if (!psbt.signable) {
                 throw IllegalStateException("PSBT is unable to sign")
             }
-            base64
-        }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io()).flatMap { psbtBase64 ->
-            val psbt = Psbt(psbtBase64, network)
+            psbt
+        }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io()).flatMap { psbt ->
             walletService.getLocalHDKeyXprvs().flatMap { hdKeys ->
                 if (hdKeys.isEmpty()) {
                     Single.error(IllegalStateException("HD keys is empty"))
