@@ -49,14 +49,17 @@ class HDKey {
             .toList()
             .toIntArray()
 
-        return if (path.isNotEmpty()) HDKey(
+        return derive(path)
+    }
+
+    fun derive(path: IntArray) = if (path.isNotEmpty()) {
+        HDKey(
             bip32_key_from_parent_path(
                 rootKey,
                 path,
                 BIP32_FLAG_KEY_PRIVATE.toLong()
             ),
             network
-        ) else this
-    }
-
+        )
+    } else this
 }

@@ -1,3 +1,4 @@
 [submodule "deps/libwally-core"]
 	path = deps/libwally-core
-	url = git@github.com:jollyjoker992/libwally-core.git
+	url = git@github.com:jgriffiths/libwally-core.git
+	branch = psbt_keypath

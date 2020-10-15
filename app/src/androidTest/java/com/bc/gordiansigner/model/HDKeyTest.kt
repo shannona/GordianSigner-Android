@@ -1,10 +1,13 @@
 package com.bc.gordiansigner.model
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.bc.gordiansigner.helper.Network
 import com.blockstream.libwally.Wally
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class HDKeyTest {
 
     private val testData = mapOf<String, Any>(
@@ -15,6 +18,12 @@ class HDKeyTest {
         "xpub" to "tpubD6NzVbkrYhZ4YcaK1UPyo5YGxLvr9s2Y1AwstREXV82YuW6tymMCSdJEyzabr4rNACTZbvJcRwmjHzfU3msWnuMqJsesmX9LivPg8pYhwxB",
         "fingerprint" to "20d25116",
         "derivePath" to "m/48h/1h/0h/2h",
+        "derivePathArray" to intArrayOf(
+            0x80000030.toInt(),
+            0x80000001.toInt(),
+            0x80000000.toInt(),
+            0x80000002.toInt()
+        ),
         "account_xprv" to "tprv8j3W3c5rkmj3bDu7q5zm4btALyJLdzHnJEiNtpsUvM3F7vtZxGF5Ts8Xe4CcBvLYQUmnhkT6pA9EnF8SW5rHSh7E8TCendMdRMSBog77wYF"
     )
 
@@ -25,7 +34,9 @@ class HDKeyTest {
         assertEquals(hdKey.xpub, testData["xpub"])
         assertEquals(hdKey.xprv, testData["xprv"])
         assertEquals(hdKey.fingerprintHex, testData["fingerprint"])
-        val accountKey = hdKey.derive(testData["derivePath"] as String)
+        var accountKey = hdKey.derive(testData["derivePath"] as String)
+        assertEquals(accountKey.xprv, testData["account_xprv"])
+        accountKey = hdKey.derive(testData["derivePathArray"] as IntArray)
         assertEquals(accountKey.xprv, testData["account_xprv"])
         assertEquals(hdKey.network, Network.TEST)
         assertEquals(Wally.hex_from_bytes(hdKey.privKey), testData["privKey"])
@@ -50,6 +61,9 @@ class HDKeyTest {
     @Test(expected = IllegalArgumentException::class)
     fun hdKeyThrowErrorFromBadSeed() {
         HDKey(ByteArray(0), Network.TEST)
+        HDKey(ByteArray(17), Network.TEST)
+        HDKey(ByteArray(32), Network.TEST)
+        HDKey(ByteArray(1), Network.TEST)
     }
 
 }

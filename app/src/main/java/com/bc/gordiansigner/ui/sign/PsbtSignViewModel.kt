@@ -10,6 +10,7 @@ import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 
 class PsbtSignViewModel(
     lifecycle: Lifecycle,
@@ -18,12 +19,7 @@ class PsbtSignViewModel(
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
 
-    companion object {
-        //Hardcoded deriv path because current can't get from psbt
-        private const val DERIV_PATH = "m"
-    }
-
-    internal val psbtLiveData = CompositeLiveData<String>()
+    internal val psbtSigningLiveData = CompositeLiveData<String>()
     internal val psbtCheckingLiveData = CompositeLiveData<Any>()
 
     fun checkPsbt(base64: String, network: Network = Network.TEST) {
@@ -35,17 +31,35 @@ class PsbtSignViewModel(
     }
 
     fun signPsbt(base64: String, network: Network) {
-        psbtLiveData.add(rxLiveDataTransformer.single(
+        psbtSigningLiveData.add(rxLiveDataTransformer.single(Single.fromCallable {
+            val psbt = Psbt(base64, network)
+            if (!psbt.signable) {
+                throw IllegalStateException("PSBT is unable to sign")
+            }
+            psbt
+        }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io()).flatMap { psbt ->
             walletService.getLocalHDKeyXprvs().flatMap { hdKeys ->
-                if (hdKeys.isNotEmpty()) {
-                    transactionService.signPsbt(
-                        Psbt(base64, network),
-                        hdKeys.first().derive(DERIV_PATH)
-                    )
+                if (hdKeys.isEmpty()) {
+                    Single.error(IllegalStateException("HD keys is empty"))
                 } else {
-                    Single.error(Throwable("Missing account, you need to import an account first!"))
+                    val inputBip32DerivFingerprints =
+                        psbt.inputBip32Derivs.map { it.fingerprintHex }
+                    val hdKey =
+                        hdKeys.firstOrNull() { inputBip32DerivFingerprints.contains(it.fingerprintHex) }
+                    if (hdKey == null) {
+                        Single.error(IllegalStateException("No HD key is able to sign this PSBT"))
+                    } else {
+                        val path =
+                            psbt.inputBip32Derivs.first { it.fingerprintHex == hdKey.fingerprintHex }.path
+                        transactionService.signPsbt(
+                            psbt,
+                            hdKey.derive(path)
+                        )
+                    }
+
                 }
             }
+        }
         ))
     }
 
