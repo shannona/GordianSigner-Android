@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import com.bc.gordiansigner.ui.Navigator
+import com.bc.gordiansigner.ui.Navigator.Companion.NONE
 
 fun Navigator.openAppSetting(context: Context) {
     try {
@@ -13,5 +14,33 @@ fun Navigator.openAppSetting(context: Context) {
         intent.data = uri
         startActivity(intent)
     } catch (ignore: Throwable) {
+    }
+}
+
+fun Navigator.browseDocument(mime: String = "*/*", requestCode: Int) {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+    intent.addCategory(Intent.CATEGORY_OPENABLE)
+    intent.type = mime
+    anim(NONE).startActivityForResult(intent, requestCode)
+}
+
+fun Navigator.shareFile(uri: Uri, subject: String = "") {
+    val intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        type = "application/*"
+        putExtra(Intent.EXTRA_STREAM, uri)
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+
+    try {
+        startActivity(
+            Intent.createChooser(
+                intent,
+                subject
+            )
+        )
+    } catch (t: Throwable) {
+        //ignore
     }
 }

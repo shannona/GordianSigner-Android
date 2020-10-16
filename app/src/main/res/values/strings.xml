@@ -14,6 +14,7 @@
     <string name="gordian_signers">Gordian Signers</string>
 
     <string name="add">Add</string>
+    <string name="import_new">Import</string>
     <string name="edit">Edit</string>
     <string name="done">Done</string>
     <string name="paste">Paste</string>
@@ -22,7 +23,7 @@
     <string name="enable_camera_access">Enable Camera Access</string>
     <string name="enable_access">Enable Access</string>
     <string name="scan">Scan</string>
-    <string name="signer">Signer</string>
+    <string name="signers">Signers</string>
 
     <string name="invalid_account_map">Invalid Account Map</string>
     <string name="invalid_psbt">Invalid PSBT</string>
@@ -35,4 +36,7 @@
     <string name="you_can_tap_sign_button_to_sign_your_psbt">You can tap the \"sign\" button to sign your psbt</string>
     <string name="psbt_signed">PSBT signed ✅</string>
     <string name="you_may_now_export_it_by_tapping_the_export_button">You may now export it by tapping the \"export\" button"</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="qr_code">QR code</string>
+    <string name="save_as_psbt_file">Save as .psbt file</string>
 </resources>

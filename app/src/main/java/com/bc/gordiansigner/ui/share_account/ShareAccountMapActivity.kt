@@ -92,6 +92,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.common_menu, menu)
+        menu?.findItem(R.id.action_import)?.isVisible = false
         return super.onCreateOptionsMenu(menu)
     }
 
