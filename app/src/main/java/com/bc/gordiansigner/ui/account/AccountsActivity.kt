@@ -47,17 +47,17 @@ class AccountsActivity : BaseAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.fetchWallets()
+        viewModel.fetchHDKeyFingerprints()
     }
 
     override fun observe() {
         super.observe()
 
-        viewModel.hdKeysLiveData.asLiveData().observe(this, Observer { res ->
+        viewModel.hdKeyFingerprintsLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    res.data()?.let { keys ->
-                        adapter.set(keys)
+                    res.data()?.let { fingerprints ->
+                        adapter.set(fingerprints)
                     }
                 }
 

@@ -30,7 +30,7 @@ class ShareAccountMapViewModel(
         accountMapLiveData.add(rxLiveDataTransformer.single(
             accountMapService.getAccountMapInfo(accountMapString)
                 .flatMap { (accountMap, descriptor) ->
-                    walletService.getLocalHDKeyXprvs().flatMap { hdKeys ->
+                    walletService.getHDKeyXprvs().flatMap { hdKeys ->
                         if (hdKeys.isNotEmpty()) {
                             accountMapService.fillPartialAccountMap(
                                 accountMap,
