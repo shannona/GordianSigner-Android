@@ -1,5 +1,6 @@
 <resources>
     <string name="error">⚠️ Error</string>
+    <string name="success">✅️ Success</string>
     <string name="confirm_account">Confirm Account</string>
     <string name="import_account">Import Account</string>
     <string name="sign_psbt">Sign PSBT</string>
@@ -39,4 +40,9 @@
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="qr_code">QR code</string>
     <string name="save_as_psbt_file">Save as .psbt file</string>
+    <string name="add_signer">Add Signer</string>
+
+    <string name="add_word_format">add word #%d</string>
+    <string name="seed_words_encrypted_and_saved">Seed words encrypted and saved 🔐</string>
+    <string name="some_thing_went_wrong_your_seed_words_were_not_saved">Something went wrong, your seed words were not saved!</string>
 </resources>
