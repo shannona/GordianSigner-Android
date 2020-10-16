@@ -8,7 +8,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
-import com.bc.gordiansigner.helper.Bip39Words
+import com.bc.gordiansigner.helper.Bip39
 import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
@@ -29,7 +29,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
     @Inject
     internal lateinit var dialogController: DialogController
 
-    private val bip39Words = Bip39Words.valid
+    private val bip39Words = Bip39.words
     private var autoCompleteCharCount = -1
     private var isUserChanged = true
 

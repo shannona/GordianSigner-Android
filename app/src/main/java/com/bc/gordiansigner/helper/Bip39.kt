@@ -1,7 +1,7 @@
 package com.bc.gordiansigner.helper
 
-object Bip39Words {
-    val valid = listOf(
+object Bip39 {
+    val words = listOf(
         "abandon",
         "ability",
         "able",
