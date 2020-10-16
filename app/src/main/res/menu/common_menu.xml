@@ -1,31 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_scan"
         android:icon="@drawable/ic_qr_code_24"
         android:orderInCategory="100"
         android:title="@string/scan"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_import"
+        android:icon="@drawable/ic_import_24"
+        android:orderInCategory="101"
+        android:title="@string/import_new"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_paste"
         android:icon="@drawable/ic_copy_24"
-        android:orderInCategory="100"
+        android:orderInCategory="102"
         android:title="@string/paste"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction" />
+        app:showAsAction="ifRoom" />
 
 
     <item
         android:id="@+id/action_signer"
         android:icon="@drawable/ic_signer_24"
-        android:orderInCategory="100"
-        android:title="@string/signer"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction" />
+        android:orderInCategory="103"
+        android:title="@string/signers"
+        app:showAsAction="ifRoom" />
 
 </menu>
