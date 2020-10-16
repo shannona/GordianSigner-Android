@@ -64,7 +64,7 @@ class WalletService @Inject constructor(
         getHDKeyXprvs().flatMap { keys ->
             val keySet = keys.toMutableSet()
             if (keySet.add(hdKey)) {
-                saveHDKeyXprvs(keySet).andThen(Single.just(hdKey))
+                saveHDKeys(keySet).andThen(Single.just(hdKey))
             } else {
                 Single.just(hdKey)
             }
@@ -74,13 +74,13 @@ class WalletService @Inject constructor(
         val fingerprints = keys.map { it.fingerprintHex }
         if (fingerprints.contains(fingerprintHex)) {
             val newKeys = keys.filterNot { it.fingerprintHex == fingerprintHex }.toSet()
-            saveHDKeyXprvs(newKeys)
+            saveHDKeys(newKeys)
         } else {
             Completable.complete()
         }
     }
 
-    private fun saveHDKeyXprvs(keys: Set<HDKey>) =
+    private fun saveHDKeys(keys: Set<HDKey>) =
         fileStorageApi.SECURE.rxCompletable { gateway ->
             gateway.writeOnFilesDir(
                 XPRIV_KEY_FILE,
