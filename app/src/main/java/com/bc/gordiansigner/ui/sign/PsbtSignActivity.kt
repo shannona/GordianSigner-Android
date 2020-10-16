@@ -69,15 +69,10 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                     }
 
                     override fun onShowQR() {
-                        editText.text.toString().toQrCode(500)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({
-                                val qrDialog = QRCodeBottomSheetDialog(it)
-                                qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
-                            }, {
-                                //Ignored
-                            })
-                            .let { compositeDisposable.add(it) }
+                        editText.text.toString().toQrCode(500).let {
+                            val qrDialog = QRCodeBottomSheetDialog(it)
+                            qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
+                        }
                     }
 
                     override fun onSaveFile() {
