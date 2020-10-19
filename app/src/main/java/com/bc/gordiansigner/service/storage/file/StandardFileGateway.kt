@@ -16,7 +16,18 @@ class StandardFileGateway internal constructor(context: Context) : FileGateway(c
     override fun writeOnFilesDir(name: String, data: ByteArray) =
         write(context.filesDir.absolutePath, name, data)
 
-    override fun read(path: String) = File(path).readBytes()
+    override fun read(path: String) = File(path).let { f ->
+        if (f.isDirectory) throw IllegalStateException("do not support directory")
+        if (f.exists()) {
+            f.readBytes()
+        } else {
+            if (f.createNewFile()) {
+                byteArrayOf()
+            } else {
+                throw IllegalStateException("cannot create new file")
+            }
+        }
+    }
 
     override fun readOnFilesDir(name: String) = read(File(context.filesDir, name).absolutePath)
 }

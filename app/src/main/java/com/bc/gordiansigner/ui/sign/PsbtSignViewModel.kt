@@ -38,7 +38,7 @@ class PsbtSignViewModel(
             }
             psbt
         }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io()).flatMap { psbt ->
-            walletService.getLocalHDKeyXprvs().flatMap { hdKeys ->
+            walletService.getHDKeyXprvs().flatMap { hdKeys ->
                 if (hdKeys.isEmpty()) {
                     Single.error(IllegalStateException("HD keys is empty"))
                 } else {

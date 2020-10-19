@@ -16,7 +16,7 @@ class MainViewModel(
 
     fun getWalletState() {
         walletStateLiveData.add(rxLiveDataTransformer.single(
-            walletService.getLocalHDKeyXprvs().map { it.isNotEmpty() }
+            walletService.getHDKeyXprvs().map { it.isNotEmpty() }
         ))
     }
 

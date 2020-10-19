@@ -17,5 +17,4 @@ class SharedPrefApi @Inject constructor(
 
 object SharedPrefKey {
     // Key comes here
-    const val ROOT_XPRV_KEYS = "root_xprv_keys"
 }

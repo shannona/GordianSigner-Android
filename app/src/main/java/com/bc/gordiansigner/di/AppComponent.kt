@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Component(
     modules = [AndroidSupportInjectionModule::class, AppModule::class,
-        ActivityBuilderModule::class, FragmentBuilderModule::class, ServiceBuilderModule::class]
+        ActivityBuilderModule::class, FragmentBuilderModule::class, ServiceBuilderModule::class, ServiceModule::class]
 )
 @Singleton
 interface AppComponent : AndroidInjector<GordianSignerApplication> {

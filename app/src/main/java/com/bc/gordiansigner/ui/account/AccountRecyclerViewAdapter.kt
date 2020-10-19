@@ -8,14 +8,13 @@ import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.ext.gone
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.helper.ext.visible
-import com.bc.gordiansigner.model.HDKey
 import kotlinx.android.synthetic.main.item_signer.view.*
 
 class AccountRecyclerViewAdapter(
     private var onDelete: ((String) -> Unit)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = mutableListOf<HDKey>()
+    private val items = mutableListOf<String>()
 
     var isEditing = false
         set(value) {
@@ -23,19 +22,19 @@ class AccountRecyclerViewAdapter(
             notifyDataSetChanged()
         }
 
-    fun set(items: List<HDKey>) {
+    fun set(items: List<String>) {
         this.items.clear()
         this.items.addAll(items)
         notifyDataSetChanged()
     }
 
-    fun add(item: HDKey) {
+    fun add(item: String) {
         items.add(item)
         notifyItemInserted(items.size - 1)
     }
 
-    fun remove(fingerprintHex: String) {
-        val index = items.indexOfFirst { i -> i.fingerprintHex == fingerprintHex }
+    fun remove(fingerprint: String) {
+        val index = items.indexOf(fingerprint)
         if (index != -1) {
             items.removeAt(index)
             notifyItemRemoved(index)
@@ -64,18 +63,18 @@ class AccountRecyclerViewAdapter(
         onDelete: ((String) -> Unit)?
     ) : RecyclerView.ViewHolder(view) {
 
-        private lateinit var key: HDKey
+        private lateinit var fingerprint: String
 
         init {
             itemView.buttonDelete.setSafetyOnclickListener {
-                onDelete?.invoke(key.fingerprintHex)
+                onDelete?.invoke(fingerprint)
             }
         }
 
-        fun bind(key: HDKey, isEditing: Boolean) {
-            this.key = key
+        fun bind(fingerprint: String, isEditing: Boolean) {
+            this.fingerprint = fingerprint
             with(itemView) {
-                tvFingerprint.text = key.fingerprintHex
+                tvFingerprint.text = fingerprint
                 if (isEditing) {
                     buttonDelete.visible(true)
                 } else {

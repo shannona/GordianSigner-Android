@@ -33,7 +33,7 @@ class FileStorageTest : RxTest() {
         val dataSet =
             mapOf(
                 "$filePrefix-test.txt" to "test_content_1",
-                "$filePrefix-test.key" to "      ",
+                "$filePrefix-test.key" to "",
                 "$filePrefix-test" to "valvalvalvalvalvalvalvalvalvalvalval"
             )
 
@@ -61,7 +61,7 @@ class FileStorageTest : RxTest() {
         val dataSet =
             mapOf(
                 "$filePrefix-test_secure.txt" to "test_content_1",
-                "$filePrefix-test_secure.key" to "      ",
+                "$filePrefix-test_secure.key" to "",
                 "$filePrefix-test_secure" to "valvalvalvalvalvalvalvalvalvalvalval"
             )
 

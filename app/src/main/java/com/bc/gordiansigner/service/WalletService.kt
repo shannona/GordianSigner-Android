@@ -1,13 +1,15 @@
 package com.bc.gordiansigner.service
 
 import com.bc.gordiansigner.helper.Network
+import com.bc.gordiansigner.helper.ext.fromJson
+import com.bc.gordiansigner.helper.ext.newGsonInstance
 import com.bc.gordiansigner.model.Bip39Mnemonic
 import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.service.storage.file.FileStorageApi
+import com.bc.gordiansigner.service.storage.file.rxCompletable
+import com.bc.gordiansigner.service.storage.file.rxSingle
 import com.bc.gordiansigner.service.storage.sharedpref.SharedPrefApi
-import com.bc.gordiansigner.service.storage.sharedpref.SharedPrefKey.ROOT_XPRV_KEYS
-import com.bc.gordiansigner.service.storage.sharedpref.rxCompletable
-import com.bc.gordiansigner.service.storage.sharedpref.rxSingle
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.security.SecureRandom
@@ -17,6 +19,11 @@ class WalletService @Inject constructor(
     sharedPrefApi: SharedPrefApi,
     fileStorageApi: FileStorageApi
 ) : BaseService(sharedPrefApi, fileStorageApi) {
+
+    companion object {
+        private const val XPRIV_KEY_FILE = "xpriv.secret"
+        private const val FINGERPRINT_FILE = "fingerprint.secret"
+    }
 
     fun importHDKeyWallet(mnemonic: String, network: Network): Single<HDKey> {
         return Single.fromCallable {
@@ -34,34 +41,55 @@ class WalletService @Inject constructor(
         }.subscribeOn(Schedulers.computation())
     }
 
-    /** BEGIN -- simple mechanism getting & saving account by storing XPRVS **/
+    fun getHDKeyXprvs() =
+        fileStorageApi.SECURE.rxSingle { gateway ->
+            val privs = gateway.readOnFilesDir(XPRIV_KEY_FILE)
+            if (privs.isEmpty()) {
+                emptyList()
+            } else {
+                newGsonInstance().fromJson<List<String>>(String(privs))
+            }
+        }.map { set -> set.map { HDKey(it) } }
 
-    fun getLocalHDKeyXprvs() =
-        sharedPrefApi.SECURE.rxSingle { sharedPref ->
-            sharedPref.get(ROOT_XPRV_KEYS, Set::class)
-        }.map { set -> set.map { HDKey(it as String) } }
+    fun getHDKeyFingerprints() = fileStorageApi.SECURE.rxSingle { gateway ->
+        val fingerprints = gateway.readOnFilesDir(FINGERPRINT_FILE)
+        if (fingerprints.isEmpty()) {
+            emptyList()
+        } else {
+            newGsonInstance().fromJson<List<String>>(String(fingerprints))
+        }
+    }
 
     fun saveHDKeyXprv(hdKey: HDKey) =
-        getLocalHDKeyXprvs().map {
-            it.toMutableSet().apply {
-                add(hdKey)
+        getHDKeyXprvs().flatMap { keys ->
+            val keySet = keys.toMutableSet()
+            if (keySet.add(hdKey)) {
+                saveHDKeys(keySet).andThen(Single.just(hdKey))
+            } else {
+                Single.just(hdKey)
             }
-        }.flatMapCompletable { keys ->
-            saveHDKeyXprvs(keys)
-        }.andThen(Single.just(hdKey))
-
-    fun deleteKey(fingerprintHex: String) =
-        getLocalHDKeyXprvs().map {
-            it.filter { key -> key.fingerprintHex != fingerprintHex }.toSet()
-        }.flatMapCompletable { keys ->
-            saveHDKeyXprvs(keys)
         }
 
-    private fun saveHDKeyXprvs(keys: Set<HDKey>) =
-        sharedPrefApi.SECURE.rxCompletable { sharedPref ->
-            sharedPref.put(ROOT_XPRV_KEYS, keys.map { it.xprv }.toSet())
+    fun deleteHDKey(fingerprintHex: String) = getHDKeyXprvs().flatMapCompletable { keys ->
+        val fingerprints = keys.map { it.fingerprintHex }
+        if (fingerprints.contains(fingerprintHex)) {
+            val newKeys = keys.filterNot { it.fingerprintHex == fingerprintHex }.toSet()
+            saveHDKeys(newKeys)
+        } else {
+            Completable.complete()
         }
+    }
 
-    /** END - simple mechanism getting & saving account by storing XPRVS **/
+    private fun saveHDKeys(keys: Set<HDKey>) =
+        fileStorageApi.SECURE.rxCompletable { gateway ->
+            gateway.writeOnFilesDir(
+                XPRIV_KEY_FILE,
+                newGsonInstance().toJson(keys.map { it.xprv }).toByteArray()
+            )
+            gateway.writeOnFilesDir(
+                FINGERPRINT_FILE,
+                newGsonInstance().toJson(keys.map { it.fingerprintHex }).toByteArray()
+            )
+        }
 
 }
