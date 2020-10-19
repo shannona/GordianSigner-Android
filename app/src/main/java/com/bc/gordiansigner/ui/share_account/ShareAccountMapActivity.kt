@@ -39,9 +39,9 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        title = "Account Map"
-
+        supportActionBar?.title = "Account Map"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_qr_code_24)
 
         buttonFill.setSafetyOnclickListener {
             val accountMapJson = editText.text.toString()
@@ -99,9 +99,6 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                navigator.anim(RIGHT_LEFT).finishActivity()
-            }
-            R.id.action_scan -> {
                 navigator.anim(RIGHT_LEFT).startActivityForResult(
                     QRScannerActivity::class.java,
                     REQUEST_CODE_QR_ACCOUNT_MAP

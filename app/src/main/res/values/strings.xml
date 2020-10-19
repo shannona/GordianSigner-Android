@@ -5,7 +5,6 @@
     <string name="import_account">Import Account</string>
     <string name="sign_psbt">Sign PSBT</string>
     <string name="input_your_account_map_json">Input your account map json</string>
-    <string name="input_psbt_to_sign">input PSBT to sign</string>
     <string name="input_your_12_recovery_words">input your 12 recovery words</string>
     <string name="import_failed_please_review_your_12">Import failed, please review your 12 recovery words and try again!</string>
     <string name="fill">FILL</string>
@@ -41,8 +40,10 @@
     <string name="qr_code">QR code</string>
     <string name="save_as_psbt_file">Save as .psbt file</string>
     <string name="add_signer">Add Signer</string>
+    <string name="psbt_signer">PSBT Signer</string>
 
     <string name="add_word_format">add word #%1$d</string>
     <string name="seed_words_encrypted_and_saved">Seed words encrypted and saved 🔐</string>
     <string name="some_thing_went_wrong_your_seed_words_were_not_saved">Something went wrong, your seed words were not saved!</string>
+    <string name="copied">Copied</string>
 </resources>

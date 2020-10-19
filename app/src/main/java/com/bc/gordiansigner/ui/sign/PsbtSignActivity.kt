@@ -55,9 +55,9 @@ class PsbtSignActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        title = "PSBT Signer"
-
+        supportActionBar?.title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_qr_code_24)
 
         buttonNext.setSafetyOnclickListener {
             if (export) {
@@ -65,7 +65,11 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                     ExportBottomSheetDialog.OnItemSelectedListener {
                     override fun onCopy() {
                         this@PsbtSignActivity.copyToClipboard(editText.text.toString())
-                        Toast.makeText(this@PsbtSignActivity, "Copied", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@PsbtSignActivity,
+                            getString(R.string.copied),
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
 
                     override fun onShowQR() {
@@ -80,7 +84,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                     }
                 })
                 dialog.show(supportFragmentManager, "TAG")
-            } else {
+            } else if (editText.text?.isNotBlank() == true) {
                 val accountMapJson = editText.text.toString()
                 viewModel.signPsbt(accountMapJson, Network.TEST)
             }
@@ -137,9 +141,6 @@ class PsbtSignActivity : BaseAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                navigator.anim(RIGHT_LEFT).finishActivity()
-            }
-            R.id.action_scan -> {
                 navigator.anim(RIGHT_LEFT)
                     .startActivityForResult(QRScannerActivity::class.java, REQUEST_CODE_QR_PSBT)
             }
