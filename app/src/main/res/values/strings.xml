@@ -53,6 +53,7 @@
     <string name="auth_for_signing">Authenticate for signing PSBT</string>
     <string name="auth_for_updating_account_map">Authenticate for updating Account Map</string>
     <string name="auth_for_storing_key">Authenticate for securely storing your key</string>
+    <string name="auth_for_deleting_account">Authenticate for permanently deleting your account</string>
     <string name="device_authentication_setup_required">Device authentication setup like PIN/Pattern/Password is required</string>
     <string name="no_hd_key_found">No HD key was found. Using 12 recovery words to import to your wallet.</string>
     <string name="psbt_is_unable_to_sign">PSBT is unable to sign.</string>
@@ -60,4 +61,6 @@
     <string name="bad_descriptor">Bad descriptor.</string>
     <string name="unsupported_format">Unsupported format.</string>
     <string name="account_map_completed">Account map is already completed.</string>
+    <string name="could_not_delete_account">Could not permanently delete your account from local storage due to unexpected problem.</string>
+    <string name="fetching_accounts_failed">Fetching accounts from local storage failed.</string>
 </resources>
