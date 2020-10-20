@@ -41,6 +41,9 @@ class WalletService @Inject constructor(
         }.subscribeOn(Schedulers.computation())
     }
 
+    fun getHDKey(fingerprint: String) =
+        getHDKeyXprvs().map { keys -> keys.first { it.fingerprintHex == fingerprint } }
+
     fun getHDKeyXprvs() =
         fileStorageApi.SUPER_SECURE.rxSingle { gateway ->
             val privs = gateway.readOnFilesDir(XPRIV_KEY_FILE)

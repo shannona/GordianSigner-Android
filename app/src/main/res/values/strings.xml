@@ -63,4 +63,6 @@
     <string name="account_map_completed">Account map is already completed.</string>
     <string name="could_not_delete_account">Could not permanently delete your account from local storage due to unexpected problem.</string>
     <string name="fetching_accounts_failed">Fetching accounts from local storage failed.</string>
+    <string name="select_a_key">Select a Key</string>
+    <string name="result">Result</string>
 </resources>

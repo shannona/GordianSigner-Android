@@ -15,7 +15,7 @@ class AccountRecyclerViewAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = mutableListOf<String>()
-
+    private var onItemSelected: ((String) -> Unit)? = null
     var isEditing = false
         set(value) {
             field = value
@@ -41,6 +41,10 @@ class AccountRecyclerViewAdapter(
         }
     }
 
+    fun setItemSelectedListener(callback: (String) -> Unit) {
+        this.onItemSelected = callback
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return KeyViewHolder(
             LayoutInflater.from(parent.context).inflate(
@@ -48,7 +52,8 @@ class AccountRecyclerViewAdapter(
                 parent,
                 false
             ),
-            onDelete
+            onDelete,
+            onItemSelected
         )
     }
 
@@ -60,7 +65,8 @@ class AccountRecyclerViewAdapter(
 
     class KeyViewHolder(
         view: View,
-        onDelete: ((String) -> Unit)?
+        onDelete: ((String) -> Unit)?,
+        onItemSelected: ((String) -> Unit)?
     ) : RecyclerView.ViewHolder(view) {
 
         private lateinit var fingerprint: String
@@ -68,6 +74,10 @@ class AccountRecyclerViewAdapter(
         init {
             itemView.buttonDelete.setSafetyOnclickListener {
                 onDelete?.invoke(fingerprint)
+            }
+
+            itemView.setSafetyOnclickListener {
+                onItemSelected?.invoke(fingerprint)
             }
         }
 
