@@ -15,6 +15,7 @@ import com.bc.gordiansigner.helper.Device.aboveP
 import com.bc.gordiansigner.helper.Device.aboveR
 import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
 import com.bc.gordiansigner.helper.ext.isStrongboxBacked
+import com.bc.gordiansigner.helper.ext.openAppSetting
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
 import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
@@ -106,22 +107,30 @@ object KeyStoreHelper {
     }
 
     fun handleKeyStoreError(
+        context: Context,
         throwable: Throwable,
         dialogController: DialogController,
         navigator: Navigator,
-        authRequiredCallback: () -> Unit = {},
-        invalidKeyCallback: () -> Unit = {}
+        authRequiredCallback: () -> Unit = {}
     ): Boolean {
         return when (throwable) {
             is InvalidKeyException -> {
-                invalidKeyCallback()
+                dialogController.alert(
+                    R.string.error,
+                    R.string.your_key_is_invalidated,
+                    clickEvent = { navigator.openAppSetting(context) }
+                )
                 true
             }
             is KeyStoreException -> {
                 if (throwable.cause is UserNotAuthenticatedException) {
                     authRequiredCallback()
                 } else {
-                    invalidKeyCallback()
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.your_key_is_invalidated,
+                        clickEvent = { navigator.openAppSetting(context) }
+                    )
                 }
                 true
             }

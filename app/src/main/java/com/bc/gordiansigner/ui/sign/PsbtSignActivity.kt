@@ -116,6 +116,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
 
                 res.isError() -> {
                     if (!KeyStoreHelper.handleKeyStoreError(
+                            applicationContext,
                             res.throwable()!!,
                             dialogController,
                             navigator,
@@ -134,13 +135,6 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                                             Log.e(TAG, "Biometric auth failed with code: $code")
                                         }
                                     })
-                            },
-                            invalidKeyCallback = {
-                                dialogController.alert(
-                                    R.string.error,
-                                    R.string.your_key_is_invalidated,
-                                    clickEvent = { navigator.openAppSetting(this) }
-                                )
                             })
                     ) {
                         dialogController.alert(

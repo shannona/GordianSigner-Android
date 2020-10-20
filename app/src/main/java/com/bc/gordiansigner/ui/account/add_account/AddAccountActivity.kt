@@ -16,7 +16,6 @@ import com.bc.gordiansigner.helper.Bip39
 import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
-import com.bc.gordiansigner.helper.ext.openAppSetting
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
@@ -157,6 +156,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
 
                 res.isError() -> {
                     if (!KeyStoreHelper.handleKeyStoreError(
+                            applicationContext,
                             res.throwable()!!,
                             dialogController,
                             navigator,
@@ -175,12 +175,6 @@ class AddAccountActivity : BaseAppCompatActivity() {
                                             Log.e(TAG, "Biometric auth failed with code: $code")
                                         }
                                     })
-                            }, invalidKeyCallback = {
-                                dialogController.alert(
-                                    R.string.error,
-                                    R.string.your_key_is_invalidated,
-                                    clickEvent = { navigator.openAppSetting(this) }
-                                )
                             })
                     ) {
                         dialogController.alert(
