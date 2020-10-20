@@ -17,6 +17,7 @@ import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
 import com.bc.gordiansigner.helper.ext.isStrongboxBacked
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
+import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import java.security.GeneralSecurityException
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
@@ -128,7 +129,7 @@ object KeyStoreHelper {
                 dialogController.alert(
                     R.string.error,
                     R.string.device_authentication_setup_required
-                ) { navigator.enrollDeviceSecurity() }
+                ) { navigator.anim(RIGHT_LEFT).enrollDeviceSecurity() }
                 true
             }
             else -> false

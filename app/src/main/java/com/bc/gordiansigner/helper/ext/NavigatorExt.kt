@@ -38,11 +38,10 @@ fun Navigator.enrollDeviceSecurity() {
                     BIOMETRIC_STRONG
                 )
             }
-        anim(Navigator.RIGHT_LEFT)
-            .startActivityForResult(
-                enrollIntent,
-                KeyStoreHelper.ENROLLMENT_REQUEST_CODE
-            )
+        startActivityForResult(
+            enrollIntent,
+            KeyStoreHelper.ENROLLMENT_REQUEST_CODE
+        )
     } else {
         openSecuritySetting()
     }

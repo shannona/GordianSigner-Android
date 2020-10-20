@@ -129,7 +129,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                                     },
                                     failedCallback = { code ->
                                         if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
-                                            navigator.enrollDeviceSecurity()
+                                            navigator.anim(RIGHT_LEFT).enrollDeviceSecurity()
                                         } else {
                                             Log.e(TAG, "Biometric auth failed with code: $code")
                                         }
