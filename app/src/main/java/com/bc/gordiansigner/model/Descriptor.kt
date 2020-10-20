@@ -1,5 +1,8 @@
 package com.bc.gordiansigner.model
 
+import com.bc.gordiansigner.helper.Error.ACCOUNT_MAP_COMPLETED_ERROR
+import com.bc.gordiansigner.helper.Error.BAD_DESCRIPTOR_ERROR
+import com.bc.gordiansigner.helper.Error.UNSUPPORTED_FORMAT_ERROR
 import com.bc.gordiansigner.helper.Network
 
 // MARK: This parser is designed to work with descriptors, we try and make it extensible and this can be an area to be improved so that it handles any descriptor but for the purposes of the app we can make a few assumptions as we know what type of descriptors the wallet will produce.
@@ -83,7 +86,7 @@ data class Descriptor(
     }
 
     fun updatePartialAccountMapFromKey(hdKey: HDKey) {
-        if (isCompleted()) throw error("cannot fill key for completed account")
+        if (isCompleted()) throw ACCOUNT_MAP_COMPLETED_ERROR
         val keyAccount = hdKey.derive(firstEmptyDerivationPath())
         updatePartialAccountMap(keyAccount.fingerprintHex, keyAccount.xpub)
     }
@@ -155,7 +158,7 @@ data class Descriptor(
 
                 val arr = descriptor.split("(")
 
-                if (arr.isEmpty()) throw error("Bad descriptor format")
+                if (arr.isEmpty()) throw BAD_DESCRIPTOR_ERROR
                 arr.forEachIndexed { i, item ->
                     if (i == 0) {
                         format = when (item) {
@@ -168,7 +171,7 @@ data class Descriptor(
                                     "P2SH"
                                 }
                             }
-                            else -> error("unknown format")
+                            else -> throw UNSUPPORTED_FORMAT_ERROR
                         }
                     }
 

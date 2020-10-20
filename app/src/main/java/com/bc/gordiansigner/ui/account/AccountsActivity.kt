@@ -3,11 +3,15 @@ package com.bc.gordiansigner.ui.account
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.biometric.BiometricManager
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.KeyStoreHelper
+import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
+import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
 import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
@@ -17,13 +21,22 @@ import javax.inject.Inject
 
 class AccountsActivity : BaseAppCompatActivity() {
 
+    companion object {
+        private const val TAG = "AccountsActivity"
+    }
+
     @Inject
     internal lateinit var viewModel: AccountsViewModel
 
     @Inject
     internal lateinit var navigator: Navigator
 
+    @Inject
+    internal lateinit var dialogController: DialogController
+
     private lateinit var adapter: AccountRecyclerViewAdapter
+
+    private lateinit var deletedAccountFingerprint: String
 
     override fun layoutRes() = R.layout.activity_accounts
 
@@ -37,7 +50,8 @@ class AccountsActivity : BaseAppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         adapter = AccountRecyclerViewAdapter { fingerprint ->
-            viewModel.deleteAccount(fingerprint)
+            deletedAccountFingerprint = fingerprint
+            viewModel.deleteAccount(deletedAccountFingerprint)
         }
 
         with(recyclerView) {
@@ -63,7 +77,10 @@ class AccountsActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
-                    Log.e("AccountsActivity", res.throwable()?.message ?: "")
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.fetching_accounts_failed
+                    )
                 }
             }
         })
@@ -77,7 +94,36 @@ class AccountsActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
-                    Log.e("AccountsActivity", res.throwable()?.message ?: "")
+                    if (!KeyStoreHelper.handleKeyStoreError(
+                            applicationContext,
+                            res.throwable()!!,
+                            dialogController,
+                            navigator,
+                            authRequiredCallback = {
+                                KeyStoreHelper.biometricAuth(
+                                    this,
+                                    R.string.auth_required,
+                                    R.string.auth_for_deleting_account,
+                                    successCallback = {
+                                        viewModel.deleteAccount(deletedAccountFingerprint)
+                                    },
+                                    failedCallback = { code ->
+                                        if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
+                                            navigator.anim(RIGHT_LEFT).enrollDeviceSecurity()
+                                        } else {
+                                            Log.e(
+                                                TAG,
+                                                "Biometric auth failed with code: $code"
+                                            )
+                                        }
+                                    })
+                            })
+                    ) {
+                        dialogController.alert(
+                            R.string.error,
+                            R.string.could_not_delete_account
+                        )
+                    }
                 }
             }
         })

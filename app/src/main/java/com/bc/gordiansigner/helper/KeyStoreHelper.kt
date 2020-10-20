@@ -117,7 +117,7 @@ object KeyStoreHelper {
             is InvalidKeyException -> {
                 dialogController.alert(
                     R.string.error,
-                    R.string.your_key_is_invalidated,
+                    R.string.your_accounts_are_invalidated,
                     clickEvent = { navigator.openAppSetting(context) }
                 )
                 true
@@ -128,7 +128,7 @@ object KeyStoreHelper {
                 } else {
                     dialogController.alert(
                         R.string.error,
-                        R.string.your_key_is_invalidated,
+                        R.string.your_accounts_are_invalidated,
                         clickEvent = { navigator.openAppSetting(context) }
                     )
                 }

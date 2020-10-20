@@ -164,7 +164,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
                                 KeyStoreHelper.biometricAuth(
                                     this,
                                     R.string.auth_required,
-                                    R.string.auth_for_storing_key,
+                                    R.string.auth_for_storing_account,
                                     successCallback = {
                                         importWallet()
                                     },
