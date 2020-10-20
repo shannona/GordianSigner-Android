@@ -45,19 +45,19 @@
     <string name="psbt_signer">PSBT Signer</string>
 
     <string name="add_word_format">add word #%1$d</string>
-    <string name="seed_words_encrypted_and_saved">Seed words encrypted and saved 🔐</string>
-    <string name="some_thing_went_wrong_your_seed_words_were_not_saved">Something went wrong, your seed words were not saved!</string>
+    <string name="seed_words_encrypted_and_saved">Your account is securely encrypted and saved to local storage 🔐</string>
+    <string name="some_thing_went_wrong_your_seed_words_were_not_saved">Something went wrong, your account has not been not saved!</string>
     <string name="copied">Copied</string>
-    <string name="your_key_is_invalidated">Your key is invalidated since your device biometric authentication is changed or removed. Please clear the app data then using your 12 recovery words to import again.\n\nStorage &amp; cache->Clear storage</string>
+    <string name="your_accounts_are_invalidated">Your accounts are invalidated since your device biometric authentication is changed or removed. Please clear the app data then using your 12 recovery words to import again.\n\nStorage &amp; cache->Clear storage</string>
     <string name="auth_required">Authentication is required</string>
     <string name="auth_for_signing">Authenticate for signing PSBT</string>
     <string name="auth_for_updating_account_map">Authenticate for updating Account Map</string>
-    <string name="auth_for_storing_key">Authenticate for securely storing your key</string>
+    <string name="auth_for_storing_account">Authenticate for securely storing your account</string>
     <string name="auth_for_deleting_account">Authenticate for permanently deleting your account</string>
     <string name="device_authentication_setup_required">Device authentication setup like PIN/Pattern/Password is required</string>
-    <string name="no_hd_key_found">No HD key was found. Using 12 recovery words to import to your wallet.</string>
+    <string name="no_account_found">No account was found. Using 12 recovery words to import to your wallet.</string>
     <string name="psbt_is_unable_to_sign">PSBT is unable to sign.</string>
-    <string name="no_appropriate_key_found">No appropriate key was found for signing the PSBT.</string>
+    <string name="no_appropriate_account_found">No appropriate account was found for signing the PSBT.</string>
     <string name="bad_descriptor">Bad descriptor.</string>
     <string name="unsupported_format">Unsupported format.</string>
     <string name="account_map_completed">Account map is already completed.</string>

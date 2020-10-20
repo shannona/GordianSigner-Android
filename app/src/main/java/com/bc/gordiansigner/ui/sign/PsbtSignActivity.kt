@@ -141,9 +141,9 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                             })
                     ) {
                         val message = when (res.throwable()!!) {
-                            NO_HD_KEY_FOUND_ERROR -> R.string.no_hd_key_found
+                            NO_HD_KEY_FOUND_ERROR -> R.string.no_account_found
                             PSBT_UNABLE_TO_SIGN_ERROR -> R.string.psbt_is_unable_to_sign
-                            NO_APPROPRIATE_HD_KEY_ERROR -> R.string.no_appropriate_key_found
+                            NO_APPROPRIATE_HD_KEY_ERROR -> R.string.no_appropriate_account_found
                             else -> R.string.unable_to_sign_psbt_unknown_error
                         }
                         dialogController.alert(

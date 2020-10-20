@@ -93,7 +93,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                             })
                     ) {
                         val msg = when (res.throwable()) {
-                            NO_HD_KEY_FOUND_ERROR -> R.string.no_hd_key_found
+                            NO_HD_KEY_FOUND_ERROR -> R.string.no_account_found
                             ACCOUNT_MAP_COMPLETED_ERROR -> R.string.account_map_completed
                             BAD_DESCRIPTOR_ERROR -> R.string.bad_descriptor
                             else -> R.string.unsupported_format
