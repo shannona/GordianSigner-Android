@@ -89,7 +89,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                         savePsbtFileAndShare(editText.text.toString())
                     }
                 })
-                dialog.show(supportFragmentManager, "ExportBottomSheetDialog")
+                dialog.show(supportFragmentManager, ExportBottomSheetDialog.TAG)
             } else {
                 signPsbt()
             }

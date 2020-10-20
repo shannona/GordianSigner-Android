@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
@@ -13,6 +14,8 @@ import com.bc.gordiansigner.helper.Error.BAD_DESCRIPTOR_ERROR
 import com.bc.gordiansigner.helper.Error.NO_HD_KEY_FOUND_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.*
+import com.bc.gordiansigner.helper.view.ExportBottomSheetDialog
+import com.bc.gordiansigner.helper.view.QRCodeBottomSheetDialog
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
@@ -27,6 +30,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     companion object {
         private const val TAG = "ShareAccountMapActivity"
         private const val REQUEST_CODE_QR_ACCOUNT_MAP = 0x01
+        private const val REQUEST_CODE_SELECT_KEY = 0x02
     }
 
     @Inject
@@ -37,6 +41,9 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
     @Inject
     internal lateinit var dialogController: DialogController
+
+    private var export = false
+    private var fingerprint = ""
 
     override fun layoutRes() = R.layout.activity_share_account_map
 
@@ -50,12 +57,45 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_qr_code_24)
 
         buttonFill.setSafetyOnclickListener {
-            updateAccountMap()
-        }
+            val accountMapJson = editText.text.toString()
 
-        buttonCopy.setSafetyOnclickListener {
-            this.copyToClipboard(tvResult.text.toString())
-            buttonCopy.animateWithString("Copied")
+            if (!export) {
+                if (accountMapJson.isNotEmpty()) {
+                    val bundle = AccountsActivity.getBundle(true)
+                    navigator.startActivityForResult(
+                        AccountsActivity::class.java,
+                        REQUEST_CODE_SELECT_KEY,
+                        bundle
+                    )
+                } else {
+                    dialogController.alert(R.string.error, R.string.invalid_account_map)
+                }
+            } else {
+                val dialog = ExportBottomSheetDialog(
+                    isFileVisible = false,
+                    listener = object : ExportBottomSheetDialog.OnItemSelectedListener {
+                        override fun onCopy() {
+                            this@ShareAccountMapActivity.copyToClipboard(accountMapJson)
+                            Toast.makeText(
+                                this@ShareAccountMapActivity,
+                                R.string.copied,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
+                        override fun onShowQR() {
+                            editText.text.toString().toQrCode(500).let {
+                                val qrDialog = QRCodeBottomSheetDialog(it)
+                                qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
+                            }
+                        }
+
+                        override fun onSaveFile() {
+                            //Not supported
+                        }
+                    })
+                dialog.show(supportFragmentManager, ExportBottomSheetDialog.TAG)
+            }
         }
     }
 
@@ -65,8 +105,13 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
         viewModel.accountMapLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    buttonCopy.visible()
-                    tvResult.text = res.data()
+                    editText.setText(res.data())
+                    export = true
+                    buttonFill.setText(R.string.export)
+                    dialogController.alert(
+                        R.string.success,
+                        R.string.you_may_now_export_it_by_tapping_the_export_button
+                    )
                 }
 
                 res.isError() -> {
@@ -98,7 +143,6 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                             BAD_DESCRIPTOR_ERROR -> R.string.bad_descriptor
                             else -> R.string.unsupported_format
                         }
-                        buttonCopy.gone()
                         dialogController.alert(R.string.error, msg)
                     }
                 }
@@ -125,12 +169,13 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
     private fun updateAccountMap() {
         val accountMapJson = editText.text.toString()
-        viewModel.updateAccountMap(accountMapJson)
+        viewModel.updateAccountMap(accountMapJson, fingerprint)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.common_menu, menu)
         menu?.findItem(R.id.action_import)?.isVisible = false
+        menu?.findItem(R.id.action_signer)?.isVisible = false
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -164,6 +209,14 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                     data?.let {
                         val accountMap = QRScannerActivity.extractResultData(it)
                         checkAccountMap(accountMap)
+                    }
+                }
+
+                REQUEST_CODE_SELECT_KEY -> {
+                    data?.let {
+                        fingerprint = AccountsActivity.extractResultData(it) ?: return
+
+                        updateAccountMap()
                     }
                 }
 

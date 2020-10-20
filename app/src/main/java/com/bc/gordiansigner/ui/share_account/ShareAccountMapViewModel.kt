@@ -1,13 +1,11 @@
 package com.bc.gordiansigner.ui.share_account
 
 import androidx.lifecycle.Lifecycle
-import com.bc.gordiansigner.helper.Error.NO_HD_KEY_FOUND_ERROR
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.service.AccountMapService
 import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
-import io.reactivex.Single
 
 class ShareAccountMapViewModel(
     lifecycle: Lifecycle,
@@ -27,20 +25,16 @@ class ShareAccountMapViewModel(
         )
     }
 
-    fun updateAccountMap(accountMapString: String) {
+    fun updateAccountMap(accountMapString: String, fingerprint: String) {
         accountMapLiveData.add(rxLiveDataTransformer.single(
             accountMapService.getAccountMapInfo(accountMapString)
                 .flatMap { (accountMap, descriptor) ->
-                    walletService.getHDKeyXprvs().flatMap { hdKeys ->
-                        if (hdKeys.isNotEmpty()) {
-                            accountMapService.fillPartialAccountMap(
-                                accountMap,
-                                descriptor,
-                                hdKeys.first()
-                            )
-                        } else {
-                            Single.error(NO_HD_KEY_FOUND_ERROR)
-                        }
+                    walletService.getHDKey(fingerprint).flatMap { hdKey ->
+                        accountMapService.fillPartialAccountMap(
+                            accountMap,
+                            descriptor,
+                            hdKey
+                        )
                     }
                 }
         ))

@@ -1,5 +1,7 @@
 package com.bc.gordiansigner.ui.account
 
+import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -23,6 +25,15 @@ class AccountsActivity : BaseAppCompatActivity() {
 
     companion object {
         private const val TAG = "AccountsActivity"
+
+        private const val IS_SELECTING_KEY = "is_selecting_key"
+        private const val SELECTED_FINGERPRINT = "selected_key"
+
+        fun getBundle(isSelecting: Boolean) = Bundle().apply {
+            putBoolean(IS_SELECTING_KEY, isSelecting)
+        }
+
+        fun extractResultData(intent: Intent) = intent.getStringExtra(SELECTED_FINGERPRINT)
     }
 
     @Inject
@@ -36,6 +47,8 @@ class AccountsActivity : BaseAppCompatActivity() {
 
     private lateinit var adapter: AccountRecyclerViewAdapter
 
+    private var isSelecting: Boolean = false
+
     private lateinit var deletedAccountFingerprint: String
 
     override fun layoutRes() = R.layout.activity_accounts
@@ -45,6 +58,8 @@ class AccountsActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
+        isSelecting = intent.getBooleanExtra(IS_SELECTING_KEY, false)
+
         title = "Accounts"
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -52,6 +67,14 @@ class AccountsActivity : BaseAppCompatActivity() {
         adapter = AccountRecyclerViewAdapter { fingerprint ->
             deletedAccountFingerprint = fingerprint
             viewModel.deleteAccount(deletedAccountFingerprint)
+        }
+
+        if (isSelecting) {
+            tvHeader.setText(R.string.select_a_key)
+            adapter.setItemSelectedListener { fingerprint ->
+                val intent = Intent().apply { putExtra(SELECTED_FINGERPRINT, fingerprint) }
+                navigator.finishActivityForResult(intent)
+            }
         }
 
         with(recyclerView) {
@@ -130,8 +153,8 @@ class AccountsActivity : BaseAppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.accounts_menu, menu)
-        return true
+        if (!isSelecting) menuInflater.inflate(R.menu.accounts_menu, menu)
+        return !isSelecting
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
