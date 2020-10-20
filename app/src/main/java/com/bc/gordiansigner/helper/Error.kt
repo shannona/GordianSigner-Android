@@ -10,4 +10,4 @@ object Error {
 }
 
 data class GeneralError(val code: Int, val msg: String) :
-    Throwable("{\"code\" : $code, \"message\" : $msg}")
+    Throwable("{\"code\" : $code, \"message\" : \"$msg\"}")
