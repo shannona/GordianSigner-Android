@@ -42,7 +42,7 @@ class WalletService @Inject constructor(
     }
 
     fun getHDKeyXprvs() =
-        fileStorageApi.SECURE.rxSingle { gateway ->
+        fileStorageApi.SUPER_SECURE.rxSingle { gateway ->
             val privs = gateway.readOnFilesDir(XPRIV_KEY_FILE)
             if (privs.isEmpty()) {
                 emptyList()
@@ -81,15 +81,16 @@ class WalletService @Inject constructor(
     }
 
     private fun saveHDKeys(keys: Set<HDKey>) =
-        fileStorageApi.SECURE.rxCompletable { gateway ->
+        Completable.mergeArray(fileStorageApi.SUPER_SECURE.rxCompletable { gateway ->
             gateway.writeOnFilesDir(
                 XPRIV_KEY_FILE,
                 newGsonInstance().toJson(keys.map { it.xprv }).toByteArray()
             )
+        }, fileStorageApi.SECURE.rxCompletable { gateway ->
             gateway.writeOnFilesDir(
                 FINGERPRINT_FILE,
                 newGsonInstance().toJson(keys.map { it.fingerprintHex }).toByteArray()
             )
-        }
+        })
 
 }

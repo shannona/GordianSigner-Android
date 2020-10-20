@@ -2,10 +2,14 @@ package com.bc.gordiansigner.helper.ext
 
 import android.content.Context
 import android.content.Intent
+import android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import android.net.Uri
 import android.provider.Settings
+import com.bc.gordiansigner.helper.Device.aboveR
+import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.ui.Navigator
 import com.bc.gordiansigner.ui.Navigator.Companion.NONE
+
 
 fun Navigator.openAppSetting(context: Context) {
     try {
@@ -14,6 +18,33 @@ fun Navigator.openAppSetting(context: Context) {
         intent.data = uri
         startActivity(intent)
     } catch (ignore: Throwable) {
+    }
+}
+
+fun Navigator.openSecuritySetting() {
+    try {
+        val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
+        startActivity(intent)
+    } catch (ignore: Throwable) {
+    }
+}
+
+fun Navigator.enrollDeviceSecurity() {
+    if (aboveR()) {
+        val enrollIntent =
+            Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+                putExtra(
+                    Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                    BIOMETRIC_STRONG
+                )
+            }
+        anim(Navigator.RIGHT_LEFT)
+            .startActivityForResult(
+                enrollIntent,
+                KeyStoreHelper.ENROLLMENT_REQUEST_CODE
+            )
+    } else {
+        openSecuritySetting()
     }
 }
 

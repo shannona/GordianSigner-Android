@@ -1,15 +1,22 @@
 package com.bc.gordiansigner.ui.account.add_account
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
+import androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.Bip39
+import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.Network
+import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
+import com.bc.gordiansigner.helper.ext.openAppSetting
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
@@ -19,6 +26,10 @@ import kotlinx.android.synthetic.main.activity_add_account.*
 import javax.inject.Inject
 
 class AddAccountActivity : BaseAppCompatActivity() {
+
+    companion object {
+        private const val TAG = "AddAccountActivity"
+    }
 
     @Inject
     internal lateinit var viewModel: AddAccountViewModel
@@ -46,8 +57,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonAddSigner.setSafetyOnclickListener {
-            val phrase = addedWords.joinToString(separator = " ")
-            viewModel.importWallet(phrase, Network.TEST)
+            importWallet()
         }
 
         buttonAdd.setSafetyOnclickListener {
@@ -146,13 +156,54 @@ class AddAccountActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
-                    dialogController.alert(
-                        R.string.error,
-                        R.string.some_thing_went_wrong_your_seed_words_were_not_saved
-                    )
+                    if (!KeyStoreHelper.handleKeyStoreError(
+                            res.throwable()!!,
+                            dialogController,
+                            navigator,
+                            authRequiredCallback = {
+                                KeyStoreHelper.biometricAuth(
+                                    this,
+                                    R.string.auth_required,
+                                    R.string.auth_for_storing_key,
+                                    successCallback = {
+                                        importWallet()
+                                    },
+                                    failedCallback = { code ->
+                                        if (code == BIOMETRIC_ERROR_NONE_ENROLLED) {
+                                            navigator.enrollDeviceSecurity()
+                                        } else {
+                                            Log.e(TAG, "Biometric auth failed with code: $code")
+                                        }
+                                    })
+                            }, invalidKeyCallback = {
+                                dialogController.alert(
+                                    R.string.error,
+                                    R.string.your_key_is_invalidated,
+                                    clickEvent = { navigator.openAppSetting(this) }
+                                )
+                            })
+                    ) {
+                        dialogController.alert(
+                            R.string.error,
+                            R.string.some_thing_went_wrong_your_seed_words_were_not_saved
+                        )
+                    }
                 }
             }
         })
+    }
+
+    private fun importWallet() {
+        val phrase = addedWords.joinToString(separator = " ")
+        viewModel.importWallet(phrase, Network.TEST)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_CANCELED && requestCode == KeyStoreHelper.ENROLLMENT_REQUEST_CODE) {
+            // resultCode is 3 after biometric is enrolled
+            importWallet()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

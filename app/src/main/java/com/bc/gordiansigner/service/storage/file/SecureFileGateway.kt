@@ -10,7 +10,9 @@ import java.io.File
  * This level of security uses Android Keystore system to encrypt/decrypt the file content.
  * The key never enters to the app process so it's secure even the phone could get hack.
  */
-open class SecureFileGateway internal constructor(context: Context) : FileGateway(context) {
+open class SecureFileGateway internal constructor(
+    context: Context
+) : FileGateway(context) {
 
     protected open val MASTER_KEY_ALIAS = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
 
@@ -50,11 +52,14 @@ open class SecureFileGateway internal constructor(context: Context) : FileGatewa
         } else if (!read && f.exists() && !f.delete()) {
             throw IllegalStateException("cannot delete file before writing")
         }
-        EncryptedFile.Builder(
-            f,
-            context,
-            MASTER_KEY_ALIAS,
-            EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
-        ).build()
+        getEncryptedFileBuilder(f).build()
     }
+
+    protected open fun getEncryptedFileBuilder(f: File) = EncryptedFile.Builder(
+        f,
+        context,
+        MASTER_KEY_ALIAS,
+        EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+    ).setKeysetAlias("secure_file_key_set_alias")
+
 }

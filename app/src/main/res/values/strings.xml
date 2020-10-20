@@ -18,6 +18,7 @@
     <string name="edit">Edit</string>
     <string name="done">Done</string>
     <string name="paste">Paste</string>
+    <string name="cancel">Cancel</string>
 
     <string name="to_get_started_allow_access_camera">To get started, allow Gordian Signer to access your camera.</string>
     <string name="enable_camera_access">Enable Camera Access</string>
@@ -46,4 +47,9 @@
     <string name="seed_words_encrypted_and_saved">Seed words encrypted and saved 🔐</string>
     <string name="some_thing_went_wrong_your_seed_words_were_not_saved">Something went wrong, your seed words were not saved!</string>
     <string name="copied">Copied</string>
+    <string name="your_key_is_invalidated">Your key is invalidated since your device biometric authentication is changed or removed. Please clear the app data then using your 12 recovery words to import again.\n\nStorage &amp; cache->Clear storage</string>
+    <string name="auth_required">Authentication is required</string>
+    <string name="auth_for_signing">Authenticate for signing PSBT</string>
+    <string name="auth_for_storing_key">Authenticate for securely storing your key</string>
+    <string name="device_authentication_setup_required">Device authentication setup like PIN/Pattern/Password is required</string>
 </resources>

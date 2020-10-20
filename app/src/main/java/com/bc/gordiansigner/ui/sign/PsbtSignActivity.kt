@@ -4,13 +4,15 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.util.Base64
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.biometric.BiometricManager
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
-import com.bc.gordiansigner.helper.Network
+import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.helper.view.ExportBottomSheetDialog
 import com.bc.gordiansigner.helper.view.QRCodeBottomSheetDialog
@@ -32,6 +34,7 @@ import javax.inject.Inject
 class PsbtSignActivity : BaseAppCompatActivity() {
 
     companion object {
+        private const val TAG = "PsbtSignActivity"
         private const val REQUEST_CODE_QR_PSBT = 0x02
         private const val REQUEST_CODE_BROWSE = 0x03
     }
@@ -83,12 +86,17 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                         savePsbtFileAndShare(editText.text.toString())
                     }
                 })
-                dialog.show(supportFragmentManager, "TAG")
-            } else if (editText.text?.isNotBlank() == true) {
-                val accountMapJson = editText.text.toString()
-                viewModel.signPsbt(accountMapJson, Network.TEST)
+                dialog.show(supportFragmentManager, "ExportBottomSheetDialog")
+            } else {
+                signPsbt()
             }
         }
+    }
+
+    private fun signPsbt() {
+        val psbt = editText.text.toString()
+        if (psbt.isBlank()) return
+        viewModel.signPsbt(psbt)
     }
 
     override fun observe() {
@@ -107,11 +115,39 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
-                    dialogController.alert(
-                        getString(R.string.error),
-                        res.throwable()?.message
-                            ?: getString(R.string.unable_to_sign_psbt_unknown_error)
-                    )
+                    if (!KeyStoreHelper.handleKeyStoreError(
+                            res.throwable()!!,
+                            dialogController,
+                            navigator,
+                            authRequiredCallback = {
+                                KeyStoreHelper.biometricAuth(
+                                    this,
+                                    R.string.auth_required,
+                                    R.string.auth_for_signing,
+                                    successCallback = {
+                                        signPsbt()
+                                    },
+                                    failedCallback = { code ->
+                                        if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
+                                            navigator.enrollDeviceSecurity()
+                                        } else {
+                                            Log.e(TAG, "Biometric auth failed with code: $code")
+                                        }
+                                    })
+                            },
+                            invalidKeyCallback = {
+                                dialogController.alert(
+                                    R.string.error,
+                                    R.string.your_key_is_invalidated,
+                                    clickEvent = { navigator.openAppSetting(this) }
+                                )
+                            })
+                    ) {
+                        dialogController.alert(
+                            R.string.error,
+                            R.string.unable_to_sign_psbt_unknown_error
+                        )
+                    }
                 }
             }
         })
@@ -131,6 +167,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                 }
             }
         })
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -197,6 +234,9 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                     error("unknown request code: $requestCode")
                 }
             }
+        } else if (resultCode != Activity.RESULT_CANCELED && requestCode == KeyStoreHelper.ENROLLMENT_REQUEST_CODE) {
+            // resultCode is 3 after biometric is enrolled
+            signPsbt()
         }
     }
 

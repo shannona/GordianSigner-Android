@@ -1,7 +1,6 @@
 package com.bc.gordiansigner.ui.sign
 
 import androidx.lifecycle.Lifecycle
-import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.model.Psbt
@@ -22,17 +21,17 @@ class PsbtSignViewModel(
     internal val psbtSigningLiveData = CompositeLiveData<String>()
     internal val psbtCheckingLiveData = CompositeLiveData<Any>()
 
-    fun checkPsbt(base64: String, network: Network = Network.TEST) {
+    fun checkPsbt(base64: String) {
         psbtCheckingLiveData.add(rxLiveDataTransformer.completable(
             Completable.fromCallable {
-                Psbt(base64, network)
+                Psbt(base64)
             }
         ))
     }
 
-    fun signPsbt(base64: String, network: Network) {
+    fun signPsbt(base64: String) {
         psbtSigningLiveData.add(rxLiveDataTransformer.single(Single.fromCallable {
-            val psbt = Psbt(base64, network)
+            val psbt = Psbt(base64)
             if (!psbt.signable) {
                 throw IllegalStateException("PSBT is unable to sign")
             }
@@ -62,5 +61,4 @@ class PsbtSignViewModel(
         }
         ))
     }
-
 }
