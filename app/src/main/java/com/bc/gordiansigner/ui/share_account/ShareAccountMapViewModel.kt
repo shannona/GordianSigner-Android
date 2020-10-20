@@ -1,6 +1,7 @@
 package com.bc.gordiansigner.ui.share_account
 
 import androidx.lifecycle.Lifecycle
+import com.bc.gordiansigner.helper.Error.NO_HD_KEY_FOUND_ERROR
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.service.AccountMapService
@@ -38,7 +39,7 @@ class ShareAccountMapViewModel(
                                 hdKeys.first()
                             )
                         } else {
-                            Single.error(Throwable("Missing account, you need to import an account first!"))
+                            Single.error(NO_HD_KEY_FOUND_ERROR)
                         }
                     }
                 }

@@ -8,6 +8,9 @@ import android.view.MenuItem
 import androidx.biometric.BiometricManager
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.Error.ACCOUNT_MAP_COMPLETED_ERROR
+import com.bc.gordiansigner.helper.Error.BAD_DESCRIPTOR_ERROR
+import com.bc.gordiansigner.helper.Error.NO_HD_KEY_FOUND_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
@@ -89,8 +92,14 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                                     })
                             })
                     ) {
+                        val msg = when (res.throwable()) {
+                            NO_HD_KEY_FOUND_ERROR -> R.string.no_hd_key_found
+                            ACCOUNT_MAP_COMPLETED_ERROR -> R.string.account_map_completed
+                            BAD_DESCRIPTOR_ERROR -> R.string.bad_descriptor
+                            else -> R.string.unsupported_format
+                        }
                         buttonCopy.gone()
-                        tvResult.text = res.throwable()?.message
+                        dialogController.alert(R.string.error, msg)
                     }
                 }
             }
@@ -162,6 +171,9 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                     error("unknown request code: $requestCode")
                 }
             }
+        } else if (resultCode != Activity.RESULT_CANCELED && requestCode == KeyStoreHelper.ENROLLMENT_REQUEST_CODE) {
+            // resultCode is 3 after biometric is enrolled
+            updateAccountMap()
         }
     }
 

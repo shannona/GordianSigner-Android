@@ -12,6 +12,9 @@ import androidx.biometric.BiometricManager
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.Error.NO_APPROPRIATE_HD_KEY_ERROR
+import com.bc.gordiansigner.helper.Error.NO_HD_KEY_FOUND_ERROR
+import com.bc.gordiansigner.helper.Error.PSBT_UNABLE_TO_SIGN_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.helper.view.ExportBottomSheetDialog
@@ -137,9 +140,15 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                                     })
                             })
                     ) {
+                        val message = when (res.throwable()!!) {
+                            NO_HD_KEY_FOUND_ERROR -> R.string.no_hd_key_found
+                            PSBT_UNABLE_TO_SIGN_ERROR -> R.string.psbt_is_unable_to_sign
+                            NO_APPROPRIATE_HD_KEY_ERROR -> R.string.no_appropriate_key_found
+                            else -> R.string.unable_to_sign_psbt_unknown_error
+                        }
                         dialogController.alert(
                             R.string.error,
-                            R.string.unable_to_sign_psbt_unknown_error
+                            message
                         )
                     }
                 }
