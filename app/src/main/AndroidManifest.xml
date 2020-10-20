@@ -14,12 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.sign.PsbtSignActivity" />
         <activity android:name=".ui.account.add_account.AddAccountActivity" />
         <activity android:name=".ui.share_account.ShareAccountMapActivity" />
         <activity android:name=".ui.account.AccountsActivity" />
         <activity android:name=".ui.scan.QRScannerActivity" />
-        <activity android:name=".ui.main.MainActivity">
+        <activity android:name=".ui.sign.PsbtSignActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

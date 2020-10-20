@@ -36,7 +36,7 @@ class PsbtTest {
 
     @Test
     fun testConstructValidPsbt() {
-        val psbt = Psbt(validPsbtData["base64_psbt"] as String, Network.TEST)
+        val psbt = Psbt(validPsbtData["base64_psbt"] as String)
         assertEquals(2, psbt.inputBip32Derivs.size)
         val bip32Deriv0 = ((validPsbtData["input_bip32_derivs"] as List<*>)[0] as Bip32Deriv)
         val bip32Deriv1 = ((validPsbtData["input_bip32_derivs"] as List<*>)[1] as Bip32Deriv)
@@ -49,13 +49,13 @@ class PsbtTest {
     @Test(expected = IllegalArgumentException::class)
     fun testConstructInvalidPsbt() {
         invalidBase64Psbt.forEach {
-            Psbt(it, Network.TEST)
+            Psbt(it)
         }
     }
 
     @Test
     fun testSignPsbtValidKey() {
-        val psbt = Psbt(validPsbtData["base64_psbt"] as String, Network.TEST)
+        val psbt = Psbt(validPsbtData["base64_psbt"] as String)
         val hdKey =
             HDKey(
                 Bip39Mnemonic(validPsbtData["recovery_phrase"] as String).seed,
@@ -67,7 +67,7 @@ class PsbtTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testSignPsbtInvalidKey() {
-        val psbt = Psbt(validPsbtData["base64_psbt"] as String, Network.TEST)
+        val psbt = Psbt(validPsbtData["base64_psbt"] as String)
         invalidRecoveryPhrase.forEach {
             val hdKey = HDKey(Bip39Mnemonic(it).seed, Network.TEST)
             psbt.sign(hdKey)

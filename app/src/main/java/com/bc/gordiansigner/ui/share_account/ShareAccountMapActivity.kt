@@ -5,8 +5,10 @@ import android.content.Intent
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.biometric.BiometricManager
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
@@ -20,6 +22,7 @@ import javax.inject.Inject
 class ShareAccountMapActivity : BaseAppCompatActivity() {
 
     companion object {
+        private const val TAG = "ShareAccountMapActivity"
         private const val REQUEST_CODE_QR_ACCOUNT_MAP = 0x01
     }
 
@@ -39,13 +42,12 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        title = "Account Map"
-
+        supportActionBar?.title = "Account Map"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_qr_code_24)
 
         buttonFill.setSafetyOnclickListener {
-            val accountMapJson = editText.text.toString()
-            viewModel.updateAccountMap(accountMapJson)
+            updateAccountMap()
         }
 
         buttonCopy.setSafetyOnclickListener {
@@ -65,9 +67,31 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
-                    Log.d("ShareAccountMapActivity", res.throwable()?.message ?: "")
-                    buttonCopy.gone()
-                    tvResult.text = res.throwable()?.message
+                    if (!KeyStoreHelper.handleKeyStoreError(
+                            applicationContext,
+                            res.throwable()!!,
+                            dialogController,
+                            navigator,
+                            authRequiredCallback = {
+                                KeyStoreHelper.biometricAuth(
+                                    this,
+                                    R.string.auth_required,
+                                    R.string.auth_for_updating_account_map,
+                                    successCallback = {
+                                        updateAccountMap()
+                                    },
+                                    failedCallback = { code ->
+                                        if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
+                                            navigator.anim(RIGHT_LEFT).enrollDeviceSecurity()
+                                        } else {
+                                            Log.e(TAG, "Biometric auth failed with code: $code")
+                                        }
+                                    })
+                            })
+                    ) {
+                        buttonCopy.gone()
+                        tvResult.text = res.throwable()?.message
+                    }
                 }
             }
         })
@@ -82,12 +106,17 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
-                    Log.d("ShareAccountMapActivity", res.throwable()?.message ?: "")
+                    Log.d(TAG, res.throwable()?.message ?: "")
                     editText.setText("")
                     dialogController.alert(R.string.error, R.string.invalid_account_map)
                 }
             }
         })
+    }
+
+    private fun updateAccountMap() {
+        val accountMapJson = editText.text.toString()
+        viewModel.updateAccountMap(accountMapJson)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -99,9 +128,6 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                navigator.anim(RIGHT_LEFT).finishActivity()
-            }
-            R.id.action_scan -> {
                 navigator.anim(RIGHT_LEFT).startActivityForResult(
                     QRScannerActivity::class.java,
                     REQUEST_CODE_QR_ACCOUNT_MAP

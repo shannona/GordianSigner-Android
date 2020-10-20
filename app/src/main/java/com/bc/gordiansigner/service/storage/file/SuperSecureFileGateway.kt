@@ -3,6 +3,7 @@ package com.bc.gordiansigner.service.storage.file
 import android.content.Context
 import androidx.security.crypto.MasterKeys
 import com.bc.gordiansigner.helper.KeyStoreHelper
+import java.io.File
 
 /**
  * This level of security requires user authentication (device biometric) each time using the key.
@@ -12,17 +13,15 @@ import com.bc.gordiansigner.helper.KeyStoreHelper
  */
 class SuperSecureFileGateway internal constructor(context: Context) : SecureFileGateway(context) {
 
-    companion object {
-        private const val MASTER_KEY_ALIAS = "super_secure_file_master_key_alias"
-        private const val MASTER_KEY_SIZE = 256
-    }
-
     override val MASTER_KEY_ALIAS: String
         get() = MasterKeys.getOrCreate(
             KeyStoreHelper.buildSuperSecureMasterKeySpec(
                 context,
-                SuperSecureFileGateway.MASTER_KEY_ALIAS,
-                SuperSecureFileGateway.MASTER_KEY_SIZE
+                "super_secure_file_master_key_alias",
+                256
             )
         )
+
+    override fun getEncryptedFileBuilder(f: File) =
+        super.getEncryptedFileBuilder(f).setKeysetAlias("super_secure_file_key_set_alias")
 }
