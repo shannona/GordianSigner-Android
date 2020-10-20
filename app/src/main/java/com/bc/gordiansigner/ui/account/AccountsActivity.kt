@@ -11,6 +11,7 @@ import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.Navigator
 import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
+import com.bc.gordiansigner.ui.share_account.ShareAccountMapActivity
 import kotlinx.android.synthetic.main.activity_accounts.*
 import javax.inject.Inject
 
@@ -98,6 +99,9 @@ class AccountsActivity : BaseAppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> {
                 navigator.anim(RIGHT_LEFT).finishActivity()
+            }
+            R.id.action_fill_account_map -> {
+                navigator.anim(RIGHT_LEFT).startActivity(ShareAccountMapActivity::class.java)
             }
             R.id.action_add -> {
                 navigator.anim(RIGHT_LEFT).startActivity(AddAccountActivity::class.java)

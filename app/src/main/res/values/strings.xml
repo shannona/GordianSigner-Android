@@ -25,6 +25,7 @@
     <string name="enable_access">Enable Access</string>
     <string name="scan">Scan</string>
     <string name="signers">Signers</string>
+    <string name="fill_account_map">Fill Account Map</string>
 
     <string name="invalid_account_map">Invalid Account Map</string>
     <string name="invalid_psbt">Invalid PSBT</string>
@@ -50,6 +51,7 @@
     <string name="your_key_is_invalidated">Your key is invalidated since your device biometric authentication is changed or removed. Please clear the app data then using your 12 recovery words to import again.\n\nStorage &amp; cache->Clear storage</string>
     <string name="auth_required">Authentication is required</string>
     <string name="auth_for_signing">Authenticate for signing PSBT</string>
+    <string name="auth_for_updating_account_map">Authenticate for updating Account Map</string>
     <string name="auth_for_storing_key">Authenticate for securely storing your key</string>
     <string name="device_authentication_setup_required">Device authentication setup like PIN/Pattern/Password is required</string>
 </resources>
