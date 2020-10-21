@@ -65,8 +65,16 @@ class AccountsActivity : BaseAppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         adapter = AccountRecyclerViewAdapter { fingerprint ->
-            deletedAccountFingerprint = fingerprint
-            viewModel.deleteAccount(deletedAccountFingerprint)
+            dialogController.confirm(
+                R.string.delete_signer,
+                R.string.this_action_is_undoable,
+                cancelable = true,
+                positive = R.string.delete,
+                positiveEvent = {
+                    deletedAccountFingerprint = fingerprint
+                    viewModel.deleteAccount(deletedAccountFingerprint)
+                }
+            )
         }
 
         if (isSelecting) {

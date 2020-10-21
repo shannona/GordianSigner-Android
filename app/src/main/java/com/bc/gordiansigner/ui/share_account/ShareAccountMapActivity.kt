@@ -54,7 +54,6 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
         supportActionBar?.title = "Account Map"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_qr_code_24)
 
         buttonFill.setSafetyOnclickListener {
             val accountMapJson = editText.text.toString()
@@ -173,27 +172,25 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.common_menu, menu)
-        menu?.findItem(R.id.action_import)?.isVisible = false
-        menu?.findItem(R.id.action_signer)?.isVisible = false
+        menuInflater.inflate(R.menu.account_map_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                navigator.anim(RIGHT_LEFT).startActivityForResult(
-                    QRScannerActivity::class.java,
-                    REQUEST_CODE_QR_ACCOUNT_MAP
-                )
+                navigator.anim(RIGHT_LEFT).finishActivity()
             }
             R.id.action_paste -> {
                 this.pasteFromClipBoard()?.let {
                     checkAccountMap(it)
                 } ?: dialogController.alert(R.string.error, R.string.clipboard_is_empty)
             }
-            R.id.action_signer -> {
-                navigator.anim(RIGHT_LEFT).startActivity(AccountsActivity::class.java)
+            R.id.action_scan -> {
+                navigator.anim(RIGHT_LEFT).startActivityForResult(
+                    QRScannerActivity::class.java,
+                    REQUEST_CODE_QR_ACCOUNT_MAP
+                )
             }
         }
 
