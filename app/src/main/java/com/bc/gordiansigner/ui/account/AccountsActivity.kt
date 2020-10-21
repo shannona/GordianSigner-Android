@@ -60,13 +60,21 @@ class AccountsActivity : BaseAppCompatActivity() {
 
         isSelecting = intent.getBooleanExtra(IS_SELECTING_KEY, false)
 
-        title = "Accounts"
+        title = ""
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         adapter = AccountRecyclerViewAdapter { fingerprint ->
-            deletedAccountFingerprint = fingerprint
-            viewModel.deleteAccount(deletedAccountFingerprint)
+            dialogController.confirm(
+                R.string.delete_signer,
+                R.string.this_action_is_undoable,
+                cancelable = true,
+                positive = R.string.delete,
+                positiveEvent = {
+                    deletedAccountFingerprint = fingerprint
+                    viewModel.deleteAccount(deletedAccountFingerprint)
+                }
+            )
         }
 
         if (isSelecting) {
@@ -182,5 +190,10 @@ class AccountsActivity : BaseAppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        navigator.anim(RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
     }
 }

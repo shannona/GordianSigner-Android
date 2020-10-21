@@ -65,4 +65,7 @@
     <string name="fetching_accounts_failed">Fetching accounts from local storage failed.</string>
     <string name="select_a_key">Select a Key</string>
     <string name="result">Result</string>
+    <string name="delete_signer">Delete Signer</string>
+    <string name="this_action_is_undoable">This action is undoable! The signer will be gone forever.</string>
+    <string name="delete">Delete</string>
 </resources>
