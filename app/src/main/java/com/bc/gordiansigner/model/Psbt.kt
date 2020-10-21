@@ -11,24 +11,17 @@ class Psbt(base64: String) {
     val inputBip32Derivs = mutableListOf<Bip32Deriv>().apply {
         val inputCount = psbt_get_num_inputs(psbt)
         for (idx in 0 until inputCount) {
-            var end = false
-            var subIdx = 0
-            while (!end) {
-                try {
-                    val fingerprint = hex_from_bytes(
-                        psbt_get_input_keypath_fingerprint(
-                            psbt,
-                            idx.toLong(),
-                            subIdx.toLong()
-                        )
+            val keyPathCount = psbt_get_input_keypaths_size(psbt, idx.toLong())
+            for (subIdx in 0 until keyPathCount) {
+                val fingerprint = hex_from_bytes(
+                    psbt_get_input_keypath_fingerprint(
+                        psbt,
+                        idx.toLong(),
+                        subIdx.toLong()
                     )
-                    val path = psbt_get_input_keypath_path(psbt, idx.toLong(), subIdx.toLong())
-                    add(Bip32Deriv(fingerprint, path))
-                    subIdx++
-                } catch (e: IllegalArgumentException) {
-                    // out of range of `subIdx`
-                    end = true
-                }
+                )
+                val path = psbt_get_input_keypath_path(psbt, idx.toLong(), subIdx.toLong())
+                add(Bip32Deriv(fingerprint, path))
             }
         }
     }.toList()
