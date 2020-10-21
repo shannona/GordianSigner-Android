@@ -52,7 +52,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        supportActionBar?.title = "Account Map"
+        supportActionBar?.title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonFill.setSafetyOnclickListener {
