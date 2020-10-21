@@ -60,7 +60,7 @@ class AccountsActivity : BaseAppCompatActivity() {
 
         isSelecting = intent.getBooleanExtra(IS_SELECTING_KEY, false)
 
-        title = "Accounts"
+        title = ""
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -190,5 +190,10 @@ class AccountsActivity : BaseAppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        navigator.anim(RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
     }
 }

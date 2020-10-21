@@ -52,7 +52,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        title = getString(R.string.import_account)
+        title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonAddSigner.setSafetyOnclickListener {
@@ -213,5 +213,10 @@ class AddAccountActivity : BaseAppCompatActivity() {
     private fun setAutoComplete(value: String) {
         isUserChanged = false
         editText.setText(value)
+    }
+
+    override fun onBackPressed() {
+        navigator.anim(RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
     }
 }

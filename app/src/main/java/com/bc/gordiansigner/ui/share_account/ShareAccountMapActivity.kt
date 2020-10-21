@@ -231,4 +231,9 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
         editText.setText(string)
         viewModel.checkValidAccountMap(string)
     }
+
+    override fun onBackPressed() {
+        navigator.anim(RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
+    }
 }
