@@ -74,11 +74,11 @@ class AccountsActivity : BaseAppCompatActivity() {
                     cancelable = true,
                     positive = R.string.delete,
                     positiveEvent = {
-                        viewModel.deleteAccount(deletedAccountFingerprint)
+                        viewModel.deleteKeyInfo(deletedAccountFingerprint)
                     },
                     neutral = R.string.delete_private_key,
                     neutralEvent = {
-                        viewModel.deletePrivateKey(deletedAccountFingerprint)
+                        viewModel.deleteHDKey(deletedAccountFingerprint)
                     }
                 )
             } else {
@@ -88,7 +88,7 @@ class AccountsActivity : BaseAppCompatActivity() {
                     cancelable = true,
                     positive = R.string.delete,
                     positiveEvent = {
-                        viewModel.deleteAccount(deletedAccountFingerprint)
+                        viewModel.deleteKeyInfo(deletedAccountFingerprint)
                     }
                 )
             }
@@ -110,13 +110,13 @@ class AccountsActivity : BaseAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.fetchHDKeyFingerprints()
+        viewModel.fetchKeysInfo()
     }
 
     override fun observe() {
         super.observe()
 
-        viewModel.hdKeyFingerprintsLiveData.asLiveData().observe(this, Observer { res ->
+        viewModel.keyInfoLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
                     res.data()?.let { keysInfo ->
@@ -137,7 +137,7 @@ class AccountsActivity : BaseAppCompatActivity() {
             when {
                 res.isSuccess() -> {
                     res.data()?.let { _ ->
-                        viewModel.fetchHDKeyFingerprints()
+                        viewModel.fetchKeysInfo()
                     }
                 }
 
@@ -153,7 +153,7 @@ class AccountsActivity : BaseAppCompatActivity() {
                                     R.string.auth_required,
                                     R.string.auth_for_deleting_account,
                                     successCallback = {
-                                        viewModel.deleteAccount(deletedAccountFingerprint)
+                                        viewModel.deleteKeyInfo(deletedAccountFingerprint)
                                     },
                                     failedCallback = { code ->
                                         if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {

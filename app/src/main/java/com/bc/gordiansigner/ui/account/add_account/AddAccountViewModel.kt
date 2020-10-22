@@ -16,11 +16,11 @@ class AddAccountViewModel(
 
     internal val importAccountLiveData = CompositeLiveData<Any>()
 
-    fun importWallet(phrase: String, alias: String, savePrivate: Boolean, network: Network) {
+    fun importWallet(phrase: String, alias: String, saveXpv: Boolean, network: Network) {
         importAccountLiveData.add(
             rxLiveDataTransformer.completable(
                 walletService.importHDKeyWallet(phrase, network).flatMapCompletable { key ->
-                    val keyInfo = KeyInfo(key.fingerprintHex, alias, savePrivate)
+                    val keyInfo = KeyInfo(key.fingerprintHex, alias, saveXpv)
                     walletService.saveKey(keyInfo, key).ignoreElement()
                 }
             )

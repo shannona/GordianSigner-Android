@@ -23,7 +23,7 @@ class WalletService @Inject constructor(
 
     companion object {
         private const val XPRIV_KEY_FILE = "xpriv.secret"
-        private const val FINGERPRINT_FILE = "fingerprint.secret"
+        private const val KEY_INFO_FILE = "keyinfo.secret"
     }
 
     fun importHDKeyWallet(mnemonic: String, network: Network): Single<HDKey> {
@@ -56,7 +56,7 @@ class WalletService @Inject constructor(
         }.map { set -> set.map { HDKey(it) } }
 
     fun getKeysInfo() = fileStorageApi.SECURE.rxSingle { gateway ->
-        val fingerprints = gateway.readOnFilesDir(FINGERPRINT_FILE)
+        val fingerprints = gateway.readOnFilesDir(KEY_INFO_FILE)
         if (fingerprints.isEmpty()) {
             emptyList()
         } else {
@@ -132,7 +132,7 @@ class WalletService @Inject constructor(
     private fun saveKeysInfo(keysInfo: Set<KeyInfo>) =
         fileStorageApi.SECURE.rxCompletable { gateway ->
             gateway.writeOnFilesDir(
-                FINGERPRINT_FILE,
+                KEY_INFO_FILE,
                 newGsonInstance().toJson(keysInfo).toByteArray()
             )
         }

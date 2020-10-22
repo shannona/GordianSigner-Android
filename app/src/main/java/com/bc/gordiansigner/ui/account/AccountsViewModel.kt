@@ -14,18 +14,18 @@ class AccountsViewModel(
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
 
-    internal val hdKeyFingerprintsLiveData = CompositeLiveData<List<KeyInfo>>()
+    internal val keyInfoLiveData = CompositeLiveData<List<KeyInfo>>()
     internal val deleteKeysLiveData = CompositeLiveData<String>()
 
-    fun fetchHDKeyFingerprints() {
-        hdKeyFingerprintsLiveData.add(
+    fun fetchKeysInfo() {
+        keyInfoLiveData.add(
             rxLiveDataTransformer.single(
                 walletService.getKeysInfo()
             )
         )
     }
 
-    fun deleteAccount(fingerprintHex: String) {
+    fun deleteKeyInfo(fingerprintHex: String) {
         deleteKeysLiveData.add(
             rxLiveDataTransformer.single(
                 walletService.deleteKeyInfo(fingerprintHex).andThen(Single.just(fingerprintHex))
@@ -33,7 +33,7 @@ class AccountsViewModel(
         )
     }
 
-    fun deletePrivateKey(fingerprintHex: String) {
+    fun deleteHDKey(fingerprintHex: String) {
         deleteKeysLiveData.add(
             rxLiveDataTransformer.single(
                 walletService.deleteHDKey(fingerprintHex).andThen(Single.just(fingerprintHex))
