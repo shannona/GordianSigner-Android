@@ -64,23 +64,40 @@ class AccountsActivity : BaseAppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        adapter = AccountRecyclerViewAdapter { fingerprint ->
-            dialogController.confirm(
-                R.string.delete_signer,
-                R.string.this_action_is_undoable,
-                cancelable = true,
-                positive = R.string.delete,
-                positiveEvent = {
-                    deletedAccountFingerprint = fingerprint
-                    viewModel.deleteAccount(deletedAccountFingerprint)
-                }
-            )
+        adapter = AccountRecyclerViewAdapter { keyInfo ->
+            deletedAccountFingerprint = keyInfo.fingerprint
+
+            if (keyInfo.isSaved) {
+                dialogController.confirm(
+                    R.string.delete_signer,
+                    R.string.do_you_want_to_delete_the_whole_key,
+                    cancelable = true,
+                    positive = R.string.delete,
+                    positiveEvent = {
+                        viewModel.deleteAccount(deletedAccountFingerprint)
+                    },
+                    neutral = R.string.delete_private_key,
+                    neutralEvent = {
+                        viewModel.deletePrivateKey(deletedAccountFingerprint)
+                    }
+                )
+            } else {
+                dialogController.confirm(
+                    R.string.delete_signer,
+                    R.string.this_action_is_undoable,
+                    cancelable = true,
+                    positive = R.string.delete,
+                    positiveEvent = {
+                        viewModel.deleteAccount(deletedAccountFingerprint)
+                    }
+                )
+            }
         }
 
         if (isSelecting) {
             tvHeader.setText(R.string.select_a_key)
-            adapter.setItemSelectedListener { fingerprint ->
-                val intent = Intent().apply { putExtra(SELECTED_FINGERPRINT, fingerprint) }
+            adapter.setItemSelectedListener { keyInfo ->
+                val intent = Intent().apply { putExtra(SELECTED_FINGERPRINT, keyInfo.fingerprint) }
                 navigator.finishActivityForResult(intent)
             }
         }
@@ -102,8 +119,8 @@ class AccountsActivity : BaseAppCompatActivity() {
         viewModel.hdKeyFingerprintsLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    res.data()?.let { fingerprints ->
-                        adapter.set(fingerprints)
+                    res.data()?.let { keysInfo ->
+                        adapter.set(keysInfo)
                     }
                 }
 
@@ -119,8 +136,8 @@ class AccountsActivity : BaseAppCompatActivity() {
         viewModel.deleteKeysLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    res.data()?.let { fingerprint ->
-                        adapter.remove(fingerprint)
+                    res.data()?.let { _ ->
+                        viewModel.fetchHDKeyFingerprints()
                     }
                 }
 
