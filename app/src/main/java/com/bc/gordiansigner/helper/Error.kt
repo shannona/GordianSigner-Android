@@ -7,6 +7,7 @@ object Error {
     val ACCOUNT_MAP_COMPLETED_ERROR = GeneralError(0x04, "Account map is already completed")
     val BAD_DESCRIPTOR_ERROR = GeneralError(0x05, "Bad descriptor")
     val UNSUPPORTED_FORMAT_ERROR = GeneralError(0x06, "Unsupported format")
+    val FINGERPRINT_NOT_MATCH_ERROR = GeneralError(0x07, "imported key not match with current fingerprint")
 }
 
 data class GeneralError(val code: Int, val msg: String) :

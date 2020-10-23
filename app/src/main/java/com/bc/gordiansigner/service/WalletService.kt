@@ -26,7 +26,7 @@ class WalletService @Inject constructor(
         private const val KEY_INFO_FILE = "keyinfo.secret"
     }
 
-    fun importHDKeyWallet(mnemonic: String, network: Network): Single<HDKey> {
+    fun importHDKeyWallet(mnemonic: String, network: Network = Network.TEST): Single<HDKey> {
         return Single.fromCallable {
             val seed = Bip39Mnemonic(mnemonic).seed
             HDKey(seed, network)

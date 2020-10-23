@@ -1,8 +1,11 @@
 package com.bc.gordiansigner.model
 
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class KeyInfo(
 
     @Expose
@@ -16,7 +19,7 @@ data class KeyInfo(
     @Expose
     @SerializedName("is_saved")
     var isSaved: Boolean
-) {
+): Parcelable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

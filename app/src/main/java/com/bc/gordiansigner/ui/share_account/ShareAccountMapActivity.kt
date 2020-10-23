@@ -43,7 +43,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     internal lateinit var dialogController: DialogController
 
     private var export = false
-    private var fingerprint = ""
+    private var selectedXprv = ""
 
     override fun layoutRes() = R.layout.activity_share_account_map
 
@@ -168,7 +168,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
     private fun updateAccountMap() {
         val accountMapJson = editText.text.toString()
-        viewModel.updateAccountMap(accountMapJson, fingerprint)
+        viewModel.updateAccountMap(accountMapJson, selectedXprv)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -211,7 +211,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
                 REQUEST_CODE_SELECT_KEY -> {
                     data?.let {
-                        fingerprint = AccountsActivity.extractResultData(it) ?: return
+                        selectedXprv = AccountsActivity.extractResultData(it) ?: return
 
                         updateAccountMap()
                     }
@@ -229,6 +229,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
     private fun checkAccountMap(string: String) {
         editText.setText(string)
+        export = false
         viewModel.checkValidAccountMap(string)
     }
 

@@ -24,6 +24,7 @@ import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
 import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import com.bc.gordiansigner.ui.account.AccountsActivity
+import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
 import com.bc.gordiansigner.ui.scan.QRScannerActivity
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Single
@@ -40,6 +41,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         private const val TAG = "PsbtSignActivity"
         private const val REQUEST_CODE_QR_PSBT = 0x02
         private const val REQUEST_CODE_BROWSE = 0x03
+        private const val REQUEST_CODE_INPUT_KEY = 0x04
     }
 
     @Inject
@@ -96,10 +98,10 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         }
     }
 
-    private fun signPsbt() {
+    private fun signPsbt(xprv: String? = null) {
         val psbt = editText.text.toString()
         if (psbt.isBlank()) return
-        viewModel.signPsbt(psbt)
+        viewModel.signPsbt(psbt, xprv)
     }
 
     override fun observe() {
@@ -108,13 +110,24 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         viewModel.psbtSigningLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    editText.setText(res.data())
-                    buttonNext.setText(R.string.export)
-                    export = true
-                    dialogController.alert(
-                        R.string.psbt_signed,
-                        R.string.you_may_now_export_it_by_tapping_the_export_button
-                    )
+                    res.data()?.let { (base64, keyInfo) ->
+                        if (keyInfo == null) {
+                            editText.setText(base64)
+                            buttonNext.setText(R.string.export)
+                            export = true
+                            dialogController.alert(
+                                R.string.psbt_signed,
+                                R.string.you_may_now_export_it_by_tapping_the_export_button
+                            )
+                        } else {
+                            val bundle = AddAccountActivity.getBundle(keyInfo)
+                            navigator.anim(RIGHT_LEFT).startActivityForResult(
+                                AddAccountActivity::class.java,
+                                REQUEST_CODE_INPUT_KEY,
+                                bundle
+                            )
+                        }
+                    }
                 }
 
                 res.isError() -> {
@@ -231,6 +244,12 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                             }, {
                                 //Ignored
                             }).let { compositeDisposable.add(it) }
+                    }
+                }
+                REQUEST_CODE_INPUT_KEY -> {
+                    data?.let {
+                        val xprv = AddAccountActivity.extractResultData(it)
+                        signPsbt(xprv)
                     }
                 }
                 else -> {

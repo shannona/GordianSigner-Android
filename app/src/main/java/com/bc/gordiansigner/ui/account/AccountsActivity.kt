@@ -1,5 +1,6 @@
 package com.bc.gordiansigner.ui.account
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -26,14 +27,16 @@ class AccountsActivity : BaseAppCompatActivity() {
     companion object {
         private const val TAG = "AccountsActivity"
 
+        private const val REQUEST_CODE_INPUT_KEY = 0x10
+
         private const val IS_SELECTING_KEY = "is_selecting_key"
-        private const val SELECTED_FINGERPRINT = "selected_key"
+        private const val SELECTED_KEY = "selected_key"
 
         fun getBundle(isSelecting: Boolean) = Bundle().apply {
             putBoolean(IS_SELECTING_KEY, isSelecting)
         }
 
-        fun extractResultData(intent: Intent) = intent.getStringExtra(SELECTED_FINGERPRINT)
+        fun extractResultData(intent: Intent) = intent.getStringExtra(SELECTED_KEY)
     }
 
     @Inject
@@ -50,6 +53,7 @@ class AccountsActivity : BaseAppCompatActivity() {
     private var isSelecting: Boolean = false
 
     private lateinit var deletedAccountFingerprint: String
+    private lateinit var selectedAccountFingerprint: String
 
     override fun layoutRes() = R.layout.activity_accounts
 
@@ -97,8 +101,17 @@ class AccountsActivity : BaseAppCompatActivity() {
         if (isSelecting) {
             tvHeader.setText(R.string.select_a_key)
             adapter.setItemSelectedListener { keyInfo ->
-                val intent = Intent().apply { putExtra(SELECTED_FINGERPRINT, keyInfo.fingerprint) }
-                navigator.finishActivityForResult(intent)
+                if (keyInfo.isSaved) {
+                    selectedAccountFingerprint = keyInfo.fingerprint
+                    viewModel.getHDKeyXprv(selectedAccountFingerprint)
+                } else {
+                    val bundle = AddAccountActivity.getBundle(keyInfo)
+                    navigator.startActivityForResult(
+                        AddAccountActivity::class.java,
+                        REQUEST_CODE_INPUT_KEY,
+                        bundle
+                    )
+                }
             }
         }
 
@@ -175,6 +188,50 @@ class AccountsActivity : BaseAppCompatActivity() {
                 }
             }
         })
+
+        viewModel.hdKeyXprvLiveData.asLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    res.data()?.let { xprv ->
+                        val intent = Intent().apply { putExtra(SELECTED_KEY, xprv) }
+                        navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
+                    }
+                }
+
+                res.isError() -> {
+                    if (!KeyStoreHelper.handleKeyStoreError(
+                            applicationContext,
+                            res.throwable()!!,
+                            dialogController,
+                            navigator,
+                            authRequiredCallback = {
+                                KeyStoreHelper.biometricAuth(
+                                    this,
+                                    R.string.auth_required,
+                                    R.string.auth_for_deleting_account,
+                                    successCallback = {
+                                        viewModel.getHDKeyXprv(selectedAccountFingerprint)
+                                    },
+                                    failedCallback = { code ->
+                                        if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
+                                            navigator.anim(RIGHT_LEFT).enrollDeviceSecurity()
+                                        } else {
+                                            Log.e(
+                                                TAG,
+                                                "Biometric auth failed with code: $code"
+                                            )
+                                        }
+                                    })
+                            })
+                    ) {
+                        dialogController.alert(
+                            R.string.error,
+                            R.string.could_not_get_your_account
+                        )
+                    }
+                }
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -183,9 +240,7 @@ class AccountsActivity : BaseAppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.action_edit)?.let { item ->
-            item.setTitle(if (adapter.isEditing) R.string.done else R.string.edit)
-        }
+        menu?.findItem(R.id.action_edit)?.setTitle(if (adapter.isEditing) R.string.done else R.string.edit)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -207,6 +262,25 @@ class AccountsActivity : BaseAppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_CODE_INPUT_KEY -> {
+                    data?.let {
+                        val xprv = AddAccountActivity.extractResultData(it) ?: return@let
+                        val intent = Intent().apply { putExtra(SELECTED_KEY, xprv) }
+                        navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
+                    }
+                }
+                else -> {
+                    error("unknown request code")
+                }
+            }
+        }
     }
 
     override fun onBackPressed() {
