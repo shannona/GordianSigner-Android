@@ -3,6 +3,7 @@ package com.bc.gordiansigner.ui.account.add_account
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.os.Bundle
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import android.util.Log
@@ -13,10 +14,11 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.Bip39
+import com.bc.gordiansigner.helper.Error.FINGERPRINT_NOT_MATCH_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
-import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
+import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
@@ -28,6 +30,14 @@ class AddAccountActivity : BaseAppCompatActivity() {
 
     companion object {
         private const val TAG = "AddAccountActivity"
+        private const val KEY_INFO = "key_info"
+        private const val KEY_XPRV = "key_xprv"
+
+        fun getBundle(keyInfo: KeyInfo) = Bundle().apply {
+            putParcelable(KEY_INFO, keyInfo)
+        }
+
+        fun extractResultData(intent: Intent) = intent.getStringExtra(KEY_XPRV)
     }
 
     @Inject
@@ -38,6 +48,9 @@ class AddAccountActivity : BaseAppCompatActivity() {
 
     @Inject
     internal lateinit var dialogController: DialogController
+
+    private var isEditing = false
+    private var keyInfo: KeyInfo? = null
 
     private val bip39Words = Bip39.words
     private var autoCompleteCharCount = -1
@@ -51,6 +64,13 @@ class AddAccountActivity : BaseAppCompatActivity() {
 
     override fun initComponents() {
         super.initComponents()
+
+        intent.getParcelableExtra<KeyInfo>(KEY_INFO)?.let {
+            isEditing = true
+            keyInfo = it
+            aliasEditText.setText(it.alias)
+            tvHeader.text = getString(R.string.signer_format, it.fingerprint, it.alias)
+        }
 
         title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -148,9 +168,14 @@ class AddAccountActivity : BaseAppCompatActivity() {
                 res.isSuccess() -> {
                     dialogController.alert(
                         R.string.success,
-                        R.string.seed_words_encrypted_and_saved
+                        if (scSavePrivate.isChecked) R.string.seed_words_encrypted_and_saved else R.string.your_account_has_been_saved_to_the_account_book
                     ) {
-                        finish()
+                        if (!isEditing) {
+                            navigator.anim(RIGHT_LEFT).finishActivity()
+                        } else {
+                            val intent = Intent().apply { putExtra(KEY_XPRV, res.data()!!) }
+                            navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
+                        }
                     }
                 }
 
@@ -177,9 +202,13 @@ class AddAccountActivity : BaseAppCompatActivity() {
                                     })
                             })
                     ) {
+                        val message = when (res.throwable()!!) {
+                            FINGERPRINT_NOT_MATCH_ERROR -> R.string.your_input_signer_is_not_matched
+                            else -> R.string.some_thing_went_wrong_your_seed_words_were_not_saved
+                        }
                         dialogController.alert(
                             R.string.error,
-                            R.string.some_thing_went_wrong_your_seed_words_were_not_saved
+                            message
                         )
                     }
                 }
@@ -191,7 +220,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
         val phrase = addedWords.joinToString(separator = " ")
         val alias = aliasEditText.text.toString()
         val isSavePrivateKey = scSavePrivate.isChecked
-        viewModel.importWallet(phrase, alias, isSavePrivateKey, Network.TEST)
+        viewModel.importWallet(phrase, alias, isSavePrivateKey, keyInfo)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

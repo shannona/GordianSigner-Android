@@ -13,8 +13,9 @@ class TransactionService @Inject constructor(
     fileStorageApi: FileStorageApi
 ) : BaseService(sharedPrefApi, fileStorageApi) {
 
-    fun signPsbt(psbt: Psbt, key: HDKey): Single<String> = Single.fromCallable {
-        psbt.sign(key)
+    fun signPsbt(psbt: Psbt, hdKey: HDKey): Single<String> = Single.fromCallable {
+        val path = psbt.inputBip32Derivs.first { it.fingerprintHex == hdKey.fingerprintHex }.path
+        psbt.sign(hdKey.derive(path))
         psbt.toBase64()
     }.subscribeOn(Schedulers.computation())
 

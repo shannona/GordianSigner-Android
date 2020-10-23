@@ -3,13 +3,12 @@ package com.bc.gordiansigner.ui.share_account
 import androidx.lifecycle.Lifecycle
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
+import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.service.AccountMapService
-import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
 
 class ShareAccountMapViewModel(
     lifecycle: Lifecycle,
-    private val walletService: WalletService,
     private val accountMapService: AccountMapService,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
@@ -25,17 +24,16 @@ class ShareAccountMapViewModel(
         )
     }
 
-    fun updateAccountMap(accountMapString: String, fingerprint: String) {
+    fun updateAccountMap(accountMapString: String, xprv: String) {
         accountMapLiveData.add(rxLiveDataTransformer.single(
             accountMapService.getAccountMapInfo(accountMapString)
                 .flatMap { (accountMap, descriptor) ->
-                    walletService.getHDKey(fingerprint).flatMap { hdKey ->
-                        accountMapService.fillPartialAccountMap(
-                            accountMap,
-                            descriptor,
-                            hdKey
-                        )
-                    }
+                    val hdKey = HDKey(xprv)
+                    accountMapService.fillPartialAccountMap(
+                        accountMap,
+                        descriptor,
+                        hdKey
+                    )
                 }
         ))
     }
