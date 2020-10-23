@@ -61,7 +61,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
             if (!export) {
                 if (accountMapJson.isNotEmpty()) {
                     val bundle = AccountsActivity.getBundle(true)
-                    navigator.startActivityForResult(
+                    navigator.anim(RIGHT_LEFT).startActivityForResult(
                         AccountsActivity::class.java,
                         REQUEST_CODE_SELECT_KEY,
                         bundle

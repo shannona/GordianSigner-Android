@@ -106,7 +106,7 @@ class AccountsActivity : BaseAppCompatActivity() {
                     viewModel.getHDKeyXprv(selectedAccountFingerprint)
                 } else {
                     val bundle = AddAccountActivity.getBundle(keyInfo)
-                    navigator.startActivityForResult(
+                    navigator.anim(RIGHT_LEFT).startActivityForResult(
                         AddAccountActivity::class.java,
                         REQUEST_CODE_INPUT_KEY,
                         bundle
@@ -240,7 +240,8 @@ class AccountsActivity : BaseAppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.action_edit)?.setTitle(if (adapter.isEditing) R.string.done else R.string.edit)
+        menu?.findItem(R.id.action_edit)
+            ?.setTitle(if (adapter.isEditing) R.string.done else R.string.edit)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -280,6 +281,9 @@ class AccountsActivity : BaseAppCompatActivity() {
                     error("unknown request code")
                 }
             }
+        } else if (resultCode != Activity.RESULT_CANCELED && requestCode == KeyStoreHelper.ENROLLMENT_REQUEST_CODE) {
+            // resultCode is 3 after biometric is enrolled
+            viewModel.getHDKeyXprv(selectedAccountFingerprint)
         }
     }
 
