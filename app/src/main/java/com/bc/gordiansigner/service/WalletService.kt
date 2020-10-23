@@ -5,6 +5,7 @@ import com.bc.gordiansigner.helper.ext.fromJson
 import com.bc.gordiansigner.helper.ext.newGsonInstance
 import com.bc.gordiansigner.model.Bip39Mnemonic
 import com.bc.gordiansigner.model.HDKey
+import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.service.storage.file.FileStorageApi
 import com.bc.gordiansigner.service.storage.file.rxCompletable
 import com.bc.gordiansigner.service.storage.file.rxSingle
@@ -22,7 +23,7 @@ class WalletService @Inject constructor(
 
     companion object {
         private const val XPRIV_KEY_FILE = "xpriv.secret"
-        private const val FINGERPRINT_FILE = "fingerprint.secret"
+        private const val KEY_INFO_FILE = "keyinfo.secret"
     }
 
     fun importHDKeyWallet(mnemonic: String, network: Network): Single<HDKey> {
@@ -42,9 +43,9 @@ class WalletService @Inject constructor(
     }
 
     fun getHDKey(fingerprint: String) =
-        getHDKeyXprvs().map { keys -> keys.first { it.fingerprintHex == fingerprint } }
+        getHDKeys().map { keys -> keys.first { it.fingerprintHex == fingerprint } }
 
-    fun getHDKeyXprvs() =
+    fun getHDKeys() =
         fileStorageApi.SUPER_SECURE.rxSingle { gateway ->
             val privs = gateway.readOnFilesDir(XPRIV_KEY_FILE)
             if (privs.isEmpty()) {
@@ -54,17 +55,52 @@ class WalletService @Inject constructor(
             }
         }.map { set -> set.map { HDKey(it) } }
 
-    fun getHDKeyFingerprints() = fileStorageApi.SECURE.rxSingle { gateway ->
-        val fingerprints = gateway.readOnFilesDir(FINGERPRINT_FILE)
+    fun getKeysInfo() = fileStorageApi.SECURE.rxSingle { gateway ->
+        val fingerprints = gateway.readOnFilesDir(KEY_INFO_FILE)
         if (fingerprints.isEmpty()) {
             emptyList()
         } else {
-            newGsonInstance().fromJson<List<String>>(String(fingerprints))
+            newGsonInstance().fromJson<List<KeyInfo>>(String(fingerprints))
         }
     }
 
-    fun saveHDKeyXprv(hdKey: HDKey) =
-        getHDKeyXprvs().flatMap { keys ->
+    fun saveKey(keyInfo: KeyInfo, hdKey: HDKey) = saveKeyInfo(keyInfo).flatMap {
+        if (keyInfo.isSaved) {
+            saveHDKey(hdKey)
+        } else {
+            Single.just(hdKey)
+        }
+    }
+
+    fun deleteHDKey(fingerprintHex: String): Completable = getHDKeys().flatMapCompletable { keys ->
+        if (keys.any { it.fingerprintHex == fingerprintHex }) {
+            val newKeys = keys.filterNot { it.fingerprintHex == fingerprintHex }.toSet()
+            saveHDKeys(newKeys).andThen(updateKeyInfo(fingerprintHex, false))
+        } else {
+            Completable.complete()
+        }
+    }
+
+    fun deleteKeyInfo(fingerprintHex: String) = getKeysInfo().flatMapCompletable { keysInfo ->
+        if (keysInfo.any { it.fingerprint == fingerprintHex }) {
+            val newKeys = keysInfo.filterNot { it.fingerprint == fingerprintHex }.toSet()
+            saveKeysInfo(newKeys).andThen(deleteHDKey(fingerprintHex))
+        } else {
+            Completable.complete()
+        }
+    }
+
+    private fun updateKeyInfo(fingerprint: String, isSaved: Boolean): Completable =
+        getKeysInfo().flatMapCompletable { keysInfo ->
+            val keyInfoSet = keysInfo.toMutableSet()
+            keyInfoSet.firstOrNull { it.fingerprint == fingerprint }?.let {
+                it.isSaved = isSaved
+                saveKeysInfo(keyInfoSet)
+            } ?: Completable.complete()
+        }
+
+    private fun saveHDKey(hdKey: HDKey) =
+        getHDKeys().flatMap { keys ->
             val keySet = keys.toMutableSet()
             if (keySet.add(hdKey)) {
                 saveHDKeys(keySet).andThen(Single.just(hdKey))
@@ -73,27 +109,32 @@ class WalletService @Inject constructor(
             }
         }
 
-    fun deleteHDKey(fingerprintHex: String) = getHDKeyXprvs().flatMapCompletable { keys ->
-        val fingerprints = keys.map { it.fingerprintHex }
-        if (fingerprints.contains(fingerprintHex)) {
-            val newKeys = keys.filterNot { it.fingerprintHex == fingerprintHex }.toSet()
-            saveHDKeys(newKeys)
-        } else {
-            Completable.complete()
+    private fun saveKeyInfo(keyInfo: KeyInfo) = getKeysInfo().flatMap { keysInfo ->
+        val keyInfoSet = keysInfo.toMutableSet()
+        keyInfoSet.firstOrNull { it == keyInfo }?.let {
+            it.alias = keyInfo.alias
+            it.isSaved = keyInfo.isSaved
+        } ?: let {
+            keyInfoSet.add(keyInfo)
         }
+
+        saveKeysInfo(keyInfoSet).andThen(Single.just(keyInfo))
     }
 
     private fun saveHDKeys(keys: Set<HDKey>) =
-        Completable.mergeArray(fileStorageApi.SUPER_SECURE.rxCompletable { gateway ->
+        fileStorageApi.SUPER_SECURE.rxCompletable { gateway ->
             gateway.writeOnFilesDir(
                 XPRIV_KEY_FILE,
                 newGsonInstance().toJson(keys.map { it.xprv }).toByteArray()
             )
-        }, fileStorageApi.SECURE.rxCompletable { gateway ->
+        }
+
+    private fun saveKeysInfo(keysInfo: Set<KeyInfo>) =
+        fileStorageApi.SECURE.rxCompletable { gateway ->
             gateway.writeOnFilesDir(
-                FINGERPRINT_FILE,
-                newGsonInstance().toJson(keys.map { it.fingerprintHex }).toByteArray()
+                KEY_INFO_FILE,
+                newGsonInstance().toJson(keysInfo).toByteArray()
             )
-        })
+        }
 
 }

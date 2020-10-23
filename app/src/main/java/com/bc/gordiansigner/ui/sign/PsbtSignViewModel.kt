@@ -40,7 +40,7 @@ class PsbtSignViewModel(
             }
             psbt
         }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io()).flatMap { psbt ->
-            walletService.getHDKeyXprvs().flatMap { hdKeys ->
+            walletService.getHDKeys().flatMap { hdKeys ->
                 if (hdKeys.isEmpty()) {
                     Single.error(NO_HD_KEY_FOUND_ERROR)
                 } else {

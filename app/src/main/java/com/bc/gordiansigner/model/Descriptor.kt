@@ -88,7 +88,7 @@ data class Descriptor(
     fun updatePartialAccountMapFromKey(hdKey: HDKey) {
         if (isCompleted()) throw ACCOUNT_MAP_COMPLETED_ERROR
         val keyAccount = hdKey.derive(firstEmptyDerivationPath())
-        updatePartialAccountMap(keyAccount.fingerprintHex, keyAccount.xpub)
+        updatePartialAccountMap(hdKey.fingerprintHex, keyAccount.xpub)
     }
 
     override fun toString() = when (isMulti) {
