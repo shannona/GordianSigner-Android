@@ -230,6 +230,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     private fun checkAccountMap(string: String) {
         editText.setText(string)
         export = false
+        buttonFill.setText(R.string.fill)
         viewModel.checkValidAccountMap(string)
     }
 

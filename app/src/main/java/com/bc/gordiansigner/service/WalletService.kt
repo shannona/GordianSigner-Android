@@ -56,11 +56,11 @@ class WalletService @Inject constructor(
         }.map { set -> set.map { HDKey(it) } }
 
     fun getKeysInfo() = fileStorageApi.SECURE.rxSingle { gateway ->
-        val fingerprints = gateway.readOnFilesDir(KEY_INFO_FILE)
-        if (fingerprints.isEmpty()) {
+        val json = gateway.readOnFilesDir(KEY_INFO_FILE)
+        if (json.isEmpty()) {
             emptyList()
         } else {
-            newGsonInstance().fromJson<List<KeyInfo>>(String(fingerprints))
+            newGsonInstance().fromJson<List<KeyInfo>>(String(json))
         }
     }
 

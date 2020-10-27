@@ -3,6 +3,7 @@ package com.bc.gordiansigner.ui.share_account
 import com.bc.gordiansigner.di.ActivityScope
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.service.AccountMapService
+import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
 import dagger.Module
@@ -16,10 +17,12 @@ class ShareAccountMapModule {
     fun provideVM(
         activity: ShareAccountMapActivity,
         accountMapService: AccountMapService,
+        contactService: ContactService,
         rxLiveDataTransformer: RxLiveDataTransformer
     ) = ShareAccountMapViewModel(
         activity.lifecycle,
         accountMapService,
+        contactService,
         rxLiveDataTransformer
     )
 

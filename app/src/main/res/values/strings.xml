@@ -54,6 +54,7 @@
     <string name="auth_required">Authentication is required</string>
     <string name="auth_for_signing">Authenticate for signing PSBT</string>
     <string name="auth_for_updating_account_map">Authenticate for updating Account Map</string>
+    <string name="auth_for_getting_your_account_key">Authenticate for getting your account key</string>
     <string name="auth_for_storing_account">Authenticate for securely storing your account</string>
     <string name="auth_for_deleting_account">Authenticate for permanently deleting your account</string>
     <string name="device_authentication_setup_required">Device authentication setup like PIN/Pattern/Password is required</string>
@@ -69,7 +70,9 @@
     <string name="select_a_key">Select a Key</string>
     <string name="result">Result</string>
     <string name="delete_signer">Delete Signer</string>
-    <string name="this_action_is_undoable">This action is undoable! The signer will be gone forever.</string>
+    <string name="this_action_is_undoable_the_signer_will_be_gone_forever">This action is undoable! The signer will be gone forever.</string>
+    <string name="this_action_is_undoable_the_contact_will_be_gone_forever">This action is undoable! The contact will be gone forever.</string>
+    <string name="delete_contact">Delete Contact</string>
     <string name="do_you_want_to_delete_the_whole_key">Do you want to delete the whole key or delete the private key only?</string>
     <string name="delete">Delete</string>
     <string name="alias">Alias</string>
@@ -77,4 +80,11 @@
     <string name="fingerprint_alias_format">%1$s (%2$s)</string>
     <string name="delete_private_key">Delete private key</string>
     <string name="signer_format">Signer: %1$s (%2$s)</string>
+    <string name="saved_contacts">Saved Contacts</string>
+    <string name="create_new_contact">Create New Contact</string>
+    <string name="update_contact">Update Contact</string>
+    <string name="contact">Contact</string>
+    <string name="fingerprint">Fingerprint</string>
+    <string name="save">Save</string>
+    <string name="fingerprint_is_not_correct">Fingerprint is not correct!</string>
 </resources>

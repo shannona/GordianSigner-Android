@@ -9,6 +9,7 @@ import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.model.Psbt
+import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.service.TransactionService
 import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
@@ -19,6 +20,7 @@ import io.reactivex.schedulers.Schedulers
 class PsbtSignViewModel(
     lifecycle: Lifecycle,
     private val walletService: WalletService,
+    private val contactService: ContactService,
     private val transactionService: TransactionService,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
@@ -60,16 +62,22 @@ class PsbtSignViewModel(
                         if (keyInfo == null) {
                             Single.error(NO_APPROPRIATE_HD_KEY_ERROR)
                         } else {
-                            if (keyInfo.isSaved) {
-                                walletService.getHDKey(keyInfo.fingerprint).flatMap { hdKey ->
-                                    transactionService.signPsbt(
-                                        psbt,
-                                        hdKey
-                                    ).map { Pair(it, null) }
-                                }
-                            } else {
-                                Single.just(Pair(base64, keyInfo))
-                            }
+                            val contactsKeyInfo = inputBip32DerivFingerprints
+                                .filter { it != keyInfo.fingerprint }
+                                .map { KeyInfo(it, "", false) }
+                                .toSet()
+
+                            contactService.appendContactKeysInfo(contactsKeyInfo)
+                                .andThen(if (keyInfo.isSaved) {
+                                    walletService.getHDKey(keyInfo.fingerprint).flatMap { hdKey ->
+                                        transactionService.signPsbt(
+                                            psbt,
+                                            hdKey
+                                        ).map { Pair(it, null) }
+                                    }
+                                } else {
+                                    Single.just(Pair(base64, keyInfo))
+                                })
                         }
 
                     }

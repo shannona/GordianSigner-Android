@@ -34,6 +34,16 @@ class AccountRecyclerViewAdapter(
         notifyItemInserted(items.size - 1)
     }
 
+    fun update(item: KeyInfo) {
+        val index = items.indexOf(item)
+        if (index != -1) {
+            val keyInfo = items[index]
+            keyInfo.alias = item.alias
+            keyInfo.isSaved = item.isSaved
+            notifyItemChanged(index)
+        }
+    }
+
     fun remove(fingerprint: String) {
         val index = items.indexOfFirst { it.fingerprint == fingerprint }
         if (index != -1) {

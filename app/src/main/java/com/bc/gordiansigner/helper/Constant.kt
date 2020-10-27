@@ -6,3 +6,5 @@ package com.bc.gordiansigner.helper
 enum class Network {
     TEST, MAIN
 }
+
+const val FINGERPRINT_REGEX = "[0-9a-f]{8}"
