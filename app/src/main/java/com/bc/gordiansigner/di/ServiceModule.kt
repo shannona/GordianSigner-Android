@@ -1,6 +1,7 @@
 package com.bc.gordiansigner.di
 
 import com.bc.gordiansigner.service.AccountMapService
+import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.service.TransactionService
 import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.service.storage.file.FileStorageApi
@@ -26,5 +27,10 @@ class ServiceModule {
     @Provides
     fun provideWalletService(sharedPrefApi: SharedPrefApi, fileStorageApi: FileStorageApi) =
         WalletService(sharedPrefApi, fileStorageApi)
+
+    @Singleton
+    @Provides
+    fun provideContactService(sharedPrefApi: SharedPrefApi, fileStorageApi: FileStorageApi) =
+        ContactService(sharedPrefApi, fileStorageApi)
 
 }

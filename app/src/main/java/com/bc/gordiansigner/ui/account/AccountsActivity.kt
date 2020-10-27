@@ -209,7 +209,7 @@ class AccountsActivity : BaseAppCompatActivity() {
                                 KeyStoreHelper.biometricAuth(
                                     this,
                                     R.string.auth_required,
-                                    R.string.auth_for_deleting_account,
+                                    R.string.auth_for_getting_your_account_key,
                                     successCallback = {
                                         viewModel.getHDKeyXprv(selectedAccountFingerprint)
                                     },

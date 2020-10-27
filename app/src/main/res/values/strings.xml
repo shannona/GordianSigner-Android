@@ -54,6 +54,7 @@
     <string name="auth_required">Authentication is required</string>
     <string name="auth_for_signing">Authenticate for signing PSBT</string>
     <string name="auth_for_updating_account_map">Authenticate for updating Account Map</string>
+    <string name="auth_for_getting_your_account_key">Authenticate for getting your account key</string>
     <string name="auth_for_storing_account">Authenticate for securely storing your account</string>
     <string name="auth_for_deleting_account">Authenticate for permanently deleting your account</string>
     <string name="device_authentication_setup_required">Device authentication setup like PIN/Pattern/Password is required</string>

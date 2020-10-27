@@ -35,10 +35,12 @@ class AccountRecyclerViewAdapter(
     }
 
     fun update(item: KeyInfo) {
-        items.firstOrNull { it == item }?.let {
-            it.alias = item.alias
-            it.isSaved = item.isSaved
-            notifyItemChanged(items.indexOf(it))
+        val index = items.indexOf(item)
+        if (index != -1) {
+            val keyInfo = items[index]
+            keyInfo.alias = item.alias
+            keyInfo.isSaved = item.isSaved
+            notifyItemChanged(index)
         }
     }
 
