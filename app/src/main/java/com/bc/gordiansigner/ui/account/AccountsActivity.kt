@@ -18,6 +18,7 @@ import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
 import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
+import com.bc.gordiansigner.ui.account.contact.ContactsActivity
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapActivity
 import kotlinx.android.synthetic.main.activity_accounts.*
 import javax.inject.Inject
@@ -88,7 +89,7 @@ class AccountsActivity : BaseAppCompatActivity() {
             } else {
                 dialogController.confirm(
                     R.string.delete_signer,
-                    R.string.this_action_is_undoable,
+                    R.string.this_action_is_undoable_the_signer_will_be_gone_forever,
                     cancelable = true,
                     positive = R.string.delete,
                     positiveEvent = {
@@ -249,6 +250,9 @@ class AccountsActivity : BaseAppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> {
                 navigator.anim(RIGHT_LEFT).finishActivity()
+            }
+            R.id.action_contact -> {
+                navigator.anim(RIGHT_LEFT).startActivity(ContactsActivity::class.java)
             }
             R.id.action_fill_account_map -> {
                 navigator.anim(RIGHT_LEFT).startActivity(ShareAccountMapActivity::class.java)
