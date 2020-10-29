@@ -171,10 +171,34 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         viewModel.psbtCheckingLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    dialogController.alert(
-                        R.string.valid_psbt,
-                        R.string.you_can_tap_sign_button_to_sign_your_psbt
-                    )
+                    res.data()?.let { (joinedSigners, psbt) ->
+                        if (psbt.signable) {
+                            dialogController.alert(
+                                getString(R.string.valid_psbt),
+                                getString(
+                                    R.string.psbt_info,
+                                    psbt.signatures.size,
+                                    joinedSigners.joinToString {
+                                        "\n\t\uD83D\uDD11 ${if (it.alias.isNotEmpty()) {
+                                            getString(
+                                                R.string.fingerprint_alias_format,
+                                                it.fingerprint,
+                                                it.alias
+                                            )
+                                        } else {
+                                            it.fingerprint
+                                        }}"
+                                    }
+                                )
+                            )
+                        } else {
+                            editText.setText("")
+                            dialogController.alert(
+                                R.string.warning,
+                                R.string.the_psbt_has_been_fully_signed
+                            )
+                        }
+                    }
                 }
 
                 res.isError() -> {

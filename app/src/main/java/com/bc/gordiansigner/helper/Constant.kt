@@ -7,4 +7,4 @@ enum class Network {
     TEST, MAIN
 }
 
-const val FINGERPRINT_REGEX = "[0-9a-f]{8}"
+const val FINGERPRINT_REGEX = "[0-9a-fA-F]{8}"

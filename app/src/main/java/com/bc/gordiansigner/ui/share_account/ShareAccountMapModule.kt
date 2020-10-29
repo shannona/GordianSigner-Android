@@ -4,6 +4,7 @@ import com.bc.gordiansigner.di.ActivityScope
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.service.AccountMapService
 import com.bc.gordiansigner.service.ContactService
+import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
 import dagger.Module
@@ -18,11 +19,13 @@ class ShareAccountMapModule {
         activity: ShareAccountMapActivity,
         accountMapService: AccountMapService,
         contactService: ContactService,
+        walletService: WalletService,
         rxLiveDataTransformer: RxLiveDataTransformer
     ) = ShareAccountMapViewModel(
         activity.lifecycle,
         accountMapService,
         contactService,
+        walletService,
         rxLiveDataTransformer
     )
 

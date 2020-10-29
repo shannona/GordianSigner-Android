@@ -13,8 +13,8 @@ import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.service.TransactionService
 import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
-import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 
 class PsbtSignViewModel(
@@ -26,13 +26,34 @@ class PsbtSignViewModel(
 ) : BaseViewModel(lifecycle) {
 
     internal val psbtSigningLiveData = CompositeLiveData<Pair<String, KeyInfo?>>()
-    internal val psbtCheckingLiveData = CompositeLiveData<Any>()
+    internal val psbtCheckingLiveData = CompositeLiveData<Pair<List<KeyInfo>, Psbt>>()
 
     fun checkPsbt(base64: String) {
-        psbtCheckingLiveData.add(rxLiveDataTransformer.completable(
-            Completable.fromCallable {
+        psbtCheckingLiveData.add(rxLiveDataTransformer.single(
+            Single.fromCallable {
                 Psbt(base64)
-            }
+            }.subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .flatMap { psbt ->
+                    Single.zip(
+                        contactService.getContactKeysInfo(),
+                        walletService.getKeysInfo(),
+                        BiFunction<List<KeyInfo>, List<KeyInfo>, List<KeyInfo>> { contacts, keys ->
+                            keys.toMutableSet().also { it.addAll(contacts) }.toList()
+                        }
+                    ).map { keysInfo ->
+                        val joinedSigners = psbt.inputBip32Derivs.map { bip32Deriv ->
+                            val index =
+                                keysInfo.indexOfFirst { it.fingerprint == bip32Deriv.fingerprintHex }
+                            if (index != -1) {
+                                keysInfo[index]
+                            } else {
+                                KeyInfo(bip32Deriv.fingerprintHex, "unknown", false)
+                            }
+                        }
+                        Pair(joinedSigners, psbt)
+                    }
+                }
         ))
     }
 

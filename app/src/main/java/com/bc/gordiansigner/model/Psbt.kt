@@ -6,8 +6,6 @@ class Psbt(base64: String) {
 
     private val psbt: Any = psbt_from_base64(base64)
 
-    val signable = psbt_get_num_inputs(psbt) > 0 && psbt_is_finalized(psbt) == 0
-
     val inputBip32Derivs = mutableListOf<Bip32Deriv>().apply {
         val inputCount = psbt_get_num_inputs(psbt)
         for (idx in 0 until inputCount) {
@@ -25,6 +23,26 @@ class Psbt(base64: String) {
             }
         }
     }.toList()
+
+    val signatures = mutableListOf<String>().apply {
+        val inputCount = psbt_get_num_inputs(psbt)
+        for (idx in 0 until inputCount) {
+            val keyPathCount = psbt_get_input_signatures_size(psbt, idx.toLong())
+            for (subIdx in 0 until keyPathCount) {
+                val signature = hex_from_bytes(
+                    psbt_get_input_signature(
+                        psbt,
+                        idx.toLong(),
+                        subIdx.toLong()
+                    )
+                )
+                add(signature)
+            }
+        }
+    }
+
+    val signable =
+        psbt_get_num_inputs(psbt) > 0 && psbt_is_finalized(psbt) == 0 && inputBip32Derivs.size > signatures.size
 
     fun sign(privKey: ByteArray) {
         val base64 = toBase64()
