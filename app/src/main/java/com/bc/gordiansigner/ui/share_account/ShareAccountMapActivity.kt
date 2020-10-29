@@ -151,10 +151,28 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
         viewModel.accountMapStatusLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    dialogController.alert(
-                        R.string.valid_account_map,
-                        R.string.you_can_tap_fill_now_to_fill_your_account_map
-                    )
+                    res.data()?.let { (joinedSigners, descriptor) ->
+                        dialogController.alert(
+                            getString(R.string.valid_account_map),
+                            getString(
+                                R.string.account_map_info,
+                                descriptor.sigsRequired,
+                                descriptor.keysWithPath.size,
+                                joinedSigners.size,
+                                joinedSigners.joinToString(separator = ", ") {
+                                    if (it.alias.isNotEmpty()) {
+                                        getString(
+                                            R.string.fingerprint_alias_format,
+                                            it.fingerprint,
+                                            it.alias
+                                        )
+                                    } else {
+                                        it.fingerprint
+                                    }
+                                }
+                            )
+                        )
+                    }
                 }
 
                 res.isError() -> {

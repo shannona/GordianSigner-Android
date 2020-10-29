@@ -1,6 +1,7 @@
 <resources>
-    <string name="error">⚠️ Error</string>
+    <string name="error">❌ Error</string>
     <string name="success">✅️ Success</string>
+    <string name="warning">⚠️ Warning</string>
     <string name="confirm_account">Confirm Account</string>
     <string name="import_account">Import Account</string>
     <string name="sign_psbt">Sign PSBT</string>
@@ -36,6 +37,7 @@
     <string name="you_can_tap_fill_now_to_fill_your_account_map">You can tap the \"fill\" button to accept and fill your account map</string>
     <string name="valid_psbt">Valid PSBT ✅</string>
     <string name="you_can_tap_sign_button_to_sign_your_psbt">You can tap the \"sign\" button to sign your psbt</string>
+    <string name="the_psbt_has_been_fully_signed">The PSBT has been fully signed or is unable to sign!</string>
     <string name="psbt_signed">PSBT signed ✅</string>
     <string name="you_may_now_export_it_by_tapping_the_export_button">You may now export it by tapping the \"export\" button"</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
@@ -87,4 +89,6 @@
     <string name="fingerprint">Fingerprint</string>
     <string name="save">Save</string>
     <string name="fingerprint_is_not_correct">Fingerprint is not correct!</string>
+    <string name="account_map_info">Account Map Info\n- Signers Required: %1$d \n- Total Signers: %2$d \n- Number of Filled Singers: %3$d \n- Joined Singers: %4$s</string>
+    <string name="psbt_info">PSBT Info\n- Total Joined Signers: %1$d \n- Signatures: %2$d</string>
 </resources>

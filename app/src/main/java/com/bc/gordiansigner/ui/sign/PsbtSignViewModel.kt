@@ -13,7 +13,6 @@ import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.service.TransactionService
 import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
-import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
@@ -26,11 +25,11 @@ class PsbtSignViewModel(
 ) : BaseViewModel(lifecycle) {
 
     internal val psbtSigningLiveData = CompositeLiveData<Pair<String, KeyInfo?>>()
-    internal val psbtCheckingLiveData = CompositeLiveData<Any>()
+    internal val psbtCheckingLiveData = CompositeLiveData<Psbt>()
 
     fun checkPsbt(base64: String) {
-        psbtCheckingLiveData.add(rxLiveDataTransformer.completable(
-            Completable.fromCallable {
+        psbtCheckingLiveData.add(rxLiveDataTransformer.single(
+            Single.fromCallable {
                 Psbt(base64)
             }
         ))
