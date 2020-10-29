@@ -158,9 +158,8 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                                 R.string.account_map_info,
                                 descriptor.sigsRequired,
                                 descriptor.keysWithPath.size,
-                                joinedSigners.size,
-                                joinedSigners.joinToString(separator = ", ") {
-                                    if (it.alias.isNotEmpty()) {
+                                if (joinedSigners.isNotEmpty()) joinedSigners.joinToString {
+                                    "\n\t\uD83D\uDD11 ${if (it.alias.isNotEmpty()) {
                                         getString(
                                             R.string.fingerprint_alias_format,
                                             it.fingerprint,
@@ -168,8 +167,8 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                                         )
                                     } else {
                                         it.fingerprint
-                                    }
-                                }
+                                    }}"
+                                } else "<none>"
                             )
                         )
                     }

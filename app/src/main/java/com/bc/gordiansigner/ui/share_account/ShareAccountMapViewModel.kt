@@ -8,15 +8,17 @@ import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.service.AccountMapService
 import com.bc.gordiansigner.service.ContactService
+import com.bc.gordiansigner.service.WalletService
 import com.bc.gordiansigner.ui.BaseViewModel
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.functions.BiFunction
+import io.reactivex.functions.Function3
 
 class ShareAccountMapViewModel(
     lifecycle: Lifecycle,
     private val accountMapService: AccountMapService,
     private val contactService: ContactService,
+    private val walletService: WalletService,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
 
@@ -29,11 +31,13 @@ class ShareAccountMapViewModel(
                 Single.zip(
                     accountMapService.getAccountMapInfo(string),
                     contactService.getContactKeysInfo(),
-                    BiFunction { (_, descriptor), contacts ->
+                    walletService.getKeysInfo(),
+                    Function3 { (_, descriptor), contacts, keys ->
+                        val keysInfo = keys.toMutableSet().also { it.addAll(contacts) }.toList()
                         val joinedSigner = descriptor.validFingerprints().map { fingerprint ->
-                            val index = contacts.indexOfFirst { it.fingerprint == fingerprint }
+                            val index = keysInfo.indexOfFirst { it.fingerprint == fingerprint }
                             if (index != -1) {
-                                contacts[index]
+                                keysInfo[index]
                             } else {
                                 KeyInfo(fingerprint, "unknown", false)
                             }
