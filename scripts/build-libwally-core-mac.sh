@@ -60,5 +60,6 @@ popd || exit
 
 echo "Copying release files..."
 cp -r deps/libwally-core/release/src/swig_java/src/com app/src/main/java
-mkdir -p app/src/main/libs/jni
-cp -r deps/libwally-core/release/lib/* app/src/main/libs/jni
+mkdir -p app/src/main/jniLibs
+cp -r deps/libwally-core/release/lib/* app/src/main/jniLibs
+echo "Done"
