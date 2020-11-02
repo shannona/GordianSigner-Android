@@ -96,4 +96,6 @@
     <string name="no_animate">No Animate</string>
     <string name="percent_completed">%1$d%% completed</string>
     <string name="content_is_invalid_please_check_and_try_again">Content is invalid. Please check and try again!</string>
+    <string name="please_input_your_recovery_words">Please input your recovery words!</string>
+    <string name="incorrect_words">Incorrect words!</string>
 </resources>

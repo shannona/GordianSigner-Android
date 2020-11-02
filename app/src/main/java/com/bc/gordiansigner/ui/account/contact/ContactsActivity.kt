@@ -113,6 +113,14 @@ class ContactsActivity : BaseAppCompatActivity() {
         })
     }
 
+    override fun onPause() {
+        if (adapter.isEditing) {
+            adapter.isEditing = false
+            invalidateOptionsMenu()
+        }
+        super.onPause()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.contacts_menu, menu)
         return true

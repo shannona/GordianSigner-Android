@@ -77,7 +77,11 @@ class AddAccountActivity : BaseAppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonAddSigner.setSafetyOnclickListener {
-            importWallet()
+            if (addedWords.isEmpty()) {
+                dialogController.alert(R.string.warning, R.string.please_input_your_recovery_words)
+            } else {
+                importWallet()
+            }
         }
 
         buttonAdd.setSafetyOnclickListener {
@@ -93,6 +97,8 @@ class AddAccountActivity : BaseAppCompatActivity() {
                 autoCompleteCharCount = -1
                 editText.setText("")
                 editText.hint = getString(R.string.add_word_format, addedWords.size + 1)
+            } else {
+                dialogController.alert(R.string.warning, R.string.incorrect_words)
             }
         }
 

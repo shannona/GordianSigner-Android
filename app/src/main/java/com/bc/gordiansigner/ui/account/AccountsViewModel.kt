@@ -16,6 +16,7 @@ class AccountsViewModel(
 
     internal val keyInfoLiveData = CompositeLiveData<List<KeyInfo>>()
     internal val deleteKeysLiveData = CompositeLiveData<String>()
+    internal val updateKeysLiveData = CompositeLiveData<KeyInfo>()
     internal val hdKeyXprvLiveData = CompositeLiveData<String>()
 
     fun fetchKeysInfo() {
@@ -46,5 +47,13 @@ class AccountsViewModel(
         hdKeyXprvLiveData.add(rxLiveDataTransformer.single(
             walletService.getHDKey(fingerprint).map { it.xprv }
         ))
+    }
+
+    fun updateKeyInfo(keyInfo: KeyInfo) {
+        updateKeysLiveData.add(
+            rxLiveDataTransformer.single(
+                walletService.saveKeyInfo(keyInfo)
+            )
+        )
     }
 }
