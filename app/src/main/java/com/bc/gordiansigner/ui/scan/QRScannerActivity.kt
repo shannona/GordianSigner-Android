@@ -45,7 +45,7 @@ class QRScannerActivity : BaseAppCompatActivity() {
     @Inject
     internal lateinit var dialogController: DialogController
 
-    private val decoder = URDecoder()
+    private var decoder: URDecoder? = null
 
     private var isUR = false
 
@@ -63,6 +63,8 @@ class QRScannerActivity : BaseAppCompatActivity() {
         title = "Scan QR Code"
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        decoder = URDecoder()
 
         val rxPermission = RxPermissions(this)
         Observable.timer(SOFT_DELAY_TIME, TimeUnit.MILLISECONDS)
@@ -90,12 +92,24 @@ class QRScannerActivity : BaseAppCompatActivity() {
             override fun barcodeResult(result: BarcodeResult?) {
                 result?.text?.let { str ->
                     if (isUR) {
+                        val decoder = decoder ?: return@let
+
                         decoder.receivePart(str)
-                        if (decoder.isComplete && decoder.isSuccess) {
-                            val ur = decoder.resultUR()
-                            val base64 = Base64.encodeToString(ur.cbor, Base64.NO_WRAP)
-                            val intent = Intent().apply { putExtra(QR_CODE_STRING, base64) }
-                            navigator.finishActivityForResult(intent)
+                        if (decoder.isComplete) {
+                            if (decoder.isSuccess) {
+                                val ur = decoder.resultUR()
+                                val base64 = Base64.encodeToString(ur.cbor, Base64.NO_WRAP)
+                                val intent = Intent().apply { putExtra(QR_CODE_STRING, base64) }
+                                navigator.finishActivityForResult(intent)
+                            } else {
+                                this@QRScannerActivity.decoder = null
+                                dialogController.alert(
+                                    R.string.error,
+                                    R.string.content_is_invalid_please_check_and_try_again
+                                ) {
+                                    this@QRScannerActivity.decoder = URDecoder()
+                                }
+                            }
                         }
                     } else {
                         val intent = Intent().apply { putExtra(QR_CODE_STRING, str) }

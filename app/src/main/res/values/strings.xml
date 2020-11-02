@@ -94,4 +94,5 @@
     <string name="psbt_info">PSBT Info\n- Joined Signers: %2$s \n- Signatures: %1$d</string>
     <string name="animate">Animate</string>
     <string name="no_animate">No Animate</string>
+    <string name="content_is_invalid_please_check_and_try_again">Content is invalid. Please check and try again!</string>
 </resources>
