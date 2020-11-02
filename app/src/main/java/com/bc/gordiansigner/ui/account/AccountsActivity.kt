@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
+import com.bc.gordiansigner.helper.view.ContactDialog
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
@@ -53,6 +54,7 @@ class AccountsActivity : BaseAppCompatActivity() {
 
     private var isSelecting: Boolean = false
 
+    private var deletePrivateKeyOnly = false
     private lateinit var deletedAccountFingerprint: String
     private lateinit var selectedAccountFingerprint: String
 
@@ -79,10 +81,12 @@ class AccountsActivity : BaseAppCompatActivity() {
                     cancelable = true,
                     positive = R.string.delete,
                     positiveEvent = {
+                        deletePrivateKeyOnly = false
                         viewModel.deleteKeyInfo(deletedAccountFingerprint)
                     },
                     neutral = R.string.delete_private_key,
                     neutralEvent = {
+                        deletePrivateKeyOnly = true
                         viewModel.deleteHDKey(deletedAccountFingerprint)
                     }
                 )
@@ -93,6 +97,7 @@ class AccountsActivity : BaseAppCompatActivity() {
                     cancelable = true,
                     positive = R.string.delete,
                     positiveEvent = {
+                        deletePrivateKeyOnly = false
                         viewModel.deleteKeyInfo(deletedAccountFingerprint)
                     }
                 )
@@ -114,6 +119,13 @@ class AccountsActivity : BaseAppCompatActivity() {
                     )
                 }
             }
+        } else {
+            adapter.setItemSelectedListener { keyInfo ->
+                val dialog = ContactDialog(keyInfo) { newKeyInfo ->
+                    viewModel.updateKeyInfo(newKeyInfo)
+                }
+                dialog.show(supportFragmentManager, ContactDialog.TAG)
+            }
         }
 
         with(recyclerView) {
@@ -125,6 +137,14 @@ class AccountsActivity : BaseAppCompatActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.fetchKeysInfo()
+    }
+
+    override fun onPause() {
+        if (adapter.isEditing) {
+            adapter.isEditing = false
+            invalidateOptionsMenu()
+        }
+        super.onPause()
     }
 
     override fun observe() {
@@ -167,7 +187,11 @@ class AccountsActivity : BaseAppCompatActivity() {
                                     R.string.auth_required,
                                     R.string.auth_for_deleting_account,
                                     successCallback = {
-                                        viewModel.deleteKeyInfo(deletedAccountFingerprint)
+                                        if (deletePrivateKeyOnly) {
+                                            viewModel.deleteHDKey(deletedAccountFingerprint)
+                                        } else {
+                                            viewModel.deleteKeyInfo(deletedAccountFingerprint)
+                                        }
                                     },
                                     failedCallback = { code ->
                                         if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
@@ -230,6 +254,20 @@ class AccountsActivity : BaseAppCompatActivity() {
                             R.string.could_not_get_your_account
                         )
                     }
+                }
+            }
+        })
+
+        viewModel.updateKeysLiveData.asLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    res.data()?.let { keyInfo ->
+                        adapter.update(keyInfo)
+                    }
+                }
+
+                res.isError() -> {
+                    dialogController.alert(res.throwable())
                 }
             }
         })

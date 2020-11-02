@@ -82,12 +82,11 @@ class WalletService @Inject constructor(
     }
 
     fun deleteKeyInfo(fingerprintHex: String) = getKeysInfo().flatMapCompletable { keysInfo ->
-        if (keysInfo.any { it.fingerprint == fingerprintHex }) {
-            val newKeys = keysInfo.filterNot { it.fingerprint == fingerprintHex }.toSet()
-            saveKeysInfo(newKeys).andThen(deleteHDKey(fingerprintHex))
-        } else {
-            Completable.complete()
-        }
+        val currentKey = keysInfo.firstOrNull { it.fingerprint == fingerprintHex }
+        currentKey?.let { keyInfo ->
+            val newKeys = keysInfo.filterNot { it == keyInfo }.toSet()
+            saveKeysInfo(newKeys).andThen(if (keyInfo.isSaved) deleteHDKey(fingerprintHex) else Completable.complete())
+        } ?: Completable.complete()
     }
 
     private fun updateKeyInfo(fingerprint: String, isSaved: Boolean): Completable =
@@ -109,10 +108,12 @@ class WalletService @Inject constructor(
             }
         }
 
-    private fun saveKeyInfo(keyInfo: KeyInfo) = getKeysInfo().flatMap { keysInfo ->
+    fun saveKeyInfo(keyInfo: KeyInfo) = getKeysInfo().flatMap { keysInfo ->
         val keyInfoSet = keysInfo.toMutableSet()
         keyInfoSet.firstOrNull { it == keyInfo }?.let {
-            it.alias = keyInfo.alias
+            if (keyInfo.alias.isNotEmpty()) {
+                it.alias = keyInfo.alias
+            }
             it.isSaved = keyInfo.isSaved
         } ?: let {
             keyInfoSet.add(keyInfo)
