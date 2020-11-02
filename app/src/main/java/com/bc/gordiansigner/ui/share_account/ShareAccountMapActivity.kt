@@ -9,11 +9,15 @@ import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.Error.ACCOUNT_MAP_ALREADY_FILLED_ERROR
 import com.bc.gordiansigner.helper.Error.ACCOUNT_MAP_COMPLETED_ERROR
 import com.bc.gordiansigner.helper.Error.BAD_DESCRIPTOR_ERROR
 import com.bc.gordiansigner.helper.Error.NO_HD_KEY_FOUND_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
-import com.bc.gordiansigner.helper.ext.*
+import com.bc.gordiansigner.helper.ext.copyToClipboard
+import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
+import com.bc.gordiansigner.helper.ext.pasteFromClipBoard
+import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.helper.view.ExportBottomSheetDialog
 import com.bc.gordiansigner.helper.view.QRCodeBottomSheetDialog
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
@@ -83,10 +87,8 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                         }
 
                         override fun onShowQR() {
-                            editText.text.toString().toQrCode(500).let {
-                                val qrDialog = QRCodeBottomSheetDialog(it)
-                                qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
-                            }
+                            val qrDialog = QRCodeBottomSheetDialog(editText.text.toString())
+                            qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
                         }
 
                         override fun onSaveFile() {
@@ -139,6 +141,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
                         val msg = when (res.throwable()) {
                             NO_HD_KEY_FOUND_ERROR -> R.string.no_account_found
                             ACCOUNT_MAP_COMPLETED_ERROR -> R.string.account_map_completed
+                            ACCOUNT_MAP_ALREADY_FILLED_ERROR -> R.string.account_map_filled
                             BAD_DESCRIPTOR_ERROR -> R.string.bad_descriptor
                             else -> R.string.unsupported_format
                         }

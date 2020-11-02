@@ -1,5 +1,6 @@
 package com.bc.gordiansigner.model
 
+import com.bc.gordiansigner.helper.Error.ACCOUNT_MAP_ALREADY_FILLED_ERROR
 import com.bc.gordiansigner.helper.Error.ACCOUNT_MAP_COMPLETED_ERROR
 import com.bc.gordiansigner.helper.Error.BAD_DESCRIPTOR_ERROR
 import com.bc.gordiansigner.helper.Error.UNSUPPORTED_FORMAT_ERROR
@@ -88,6 +89,7 @@ data class Descriptor(
 
     fun updatePartialAccountMapFromKey(hdKey: HDKey) {
         if (isCompleted()) throw ACCOUNT_MAP_COMPLETED_ERROR
+        if (validFingerprints().contains(hdKey.fingerprintHex)) throw ACCOUNT_MAP_ALREADY_FILLED_ERROR
         val keyAccount = hdKey.derive(firstEmptyDerivationPath())
         updatePartialAccountMap(hdKey.fingerprintHex, keyAccount.xpub)
     }

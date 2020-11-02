@@ -81,10 +81,9 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                     }
 
                     override fun onShowQR() {
-                        editText.text.toString().toQrCode(500).let {
-                            val qrDialog = QRCodeBottomSheetDialog(it)
-                            qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
-                        }
+                        val qrDialog =
+                            QRCodeBottomSheetDialog(editText.text.toString(), animateEnabled = true)
+                        qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
                     }
 
                     override fun onSaveFile() {
@@ -218,8 +217,13 @@ class PsbtSignActivity : BaseAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
+                val bundle = QRScannerActivity.getBundle(isUR = true)
                 navigator.anim(RIGHT_LEFT)
-                    .startActivityForResult(QRScannerActivity::class.java, REQUEST_CODE_QR_PSBT)
+                    .startActivityForResult(
+                        QRScannerActivity::class.java,
+                        REQUEST_CODE_QR_PSBT,
+                        bundle
+                    )
             }
             R.id.action_import -> {
                 navigator.browseDocument(requestCode = REQUEST_CODE_BROWSE)
