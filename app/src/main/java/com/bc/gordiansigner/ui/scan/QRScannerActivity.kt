@@ -7,6 +7,7 @@ import android.util.Base64
 import android.view.MenuItem
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.ext.openAppSetting
+import com.bc.gordiansigner.helper.ext.visible
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.BaseViewModel
 import com.bc.gordiansigner.ui.DialogController
@@ -60,6 +61,11 @@ class QRScannerActivity : BaseAppCompatActivity() {
 
         isUR = intent.getBooleanExtra(IS_UR, false)
 
+        if (isUR) {
+            progressBar.visible()
+            tvProgress.visible()
+        }
+
         title = "Scan QR Code"
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -95,6 +101,11 @@ class QRScannerActivity : BaseAppCompatActivity() {
                         val decoder = decoder ?: return@let
 
                         decoder.receivePart(str)
+
+                        val percentageCompletion = (decoder.estimatedPercentComplete() * 100).toInt()
+                        progressBar.progress = percentageCompletion
+                        tvProgress.text = getString(R.string.percent_completed, percentageCompletion)
+
                         if (decoder.isComplete) {
                             if (decoder.isSuccess) {
                                 val ur = decoder.resultUR()
@@ -108,6 +119,8 @@ class QRScannerActivity : BaseAppCompatActivity() {
                                     R.string.content_is_invalid_please_check_and_try_again
                                 ) {
                                     this@QRScannerActivity.decoder = URDecoder()
+                                    progressBar.progress = 0
+                                    tvProgress.text = getString(R.string.percent_completed, 0)
                                 }
                             }
                         }
