@@ -2,6 +2,8 @@ package com.bc.gordiansigner.ui.scan
 
 import android.Manifest
 import android.content.Intent
+import android.os.Bundle
+import android.util.Base64
 import android.view.MenuItem
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.ext.openAppSetting
@@ -10,6 +12,7 @@ import com.bc.gordiansigner.ui.BaseViewModel
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
 import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
+import com.bc.ur.URDecoder
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.ResultPoint
 import com.journeyapps.barcodescanner.BarcodeCallback
@@ -28,7 +31,10 @@ class QRScannerActivity : BaseAppCompatActivity() {
 
     companion object {
         private const val SOFT_DELAY_TIME = 500L
+        private const val IS_UR = "is_ur"
         private const val QR_CODE_STRING = "qr_code_string"
+
+        fun getBundle(isUR: Boolean) = Bundle().apply { putBoolean(IS_UR, isUR) }
 
         fun extractResultData(intent: Intent): String = intent.getStringExtra(QR_CODE_STRING) ?: ""
     }
@@ -39,6 +45,10 @@ class QRScannerActivity : BaseAppCompatActivity() {
     @Inject
     internal lateinit var dialogController: DialogController
 
+    private val decoder = URDecoder()
+
+    private var isUR = false
+
     override fun layoutRes() = R.layout.activity_qrscanner
 
     override fun viewModel(): BaseViewModel? = null
@@ -47,6 +57,8 @@ class QRScannerActivity : BaseAppCompatActivity() {
 
     override fun initComponents() {
         super.initComponents()
+
+        isUR = intent.getBooleanExtra(IS_UR, false)
 
         title = "Scan QR Code"
 
@@ -76,9 +88,19 @@ class QRScannerActivity : BaseAppCompatActivity() {
         scannerView.decoderFactory = DefaultDecoderFactory(formats)
         scannerView.decodeContinuous(object : BarcodeCallback {
             override fun barcodeResult(result: BarcodeResult?) {
-                result?.text?.let {
-                    val intent = Intent().apply { putExtra(QR_CODE_STRING, it) }
-                    navigator.finishActivityForResult(intent)
+                result?.text?.let { str ->
+                    if (isUR) {
+                        decoder.receivePart(str)
+                        if (decoder.isComplete && decoder.isSuccess) {
+                            val ur = decoder.resultUR()
+                            val base64 = Base64.encodeToString(ur.cbor, Base64.NO_WRAP)
+                            val intent = Intent().apply { putExtra(QR_CODE_STRING, base64) }
+                            navigator.finishActivityForResult(intent)
+                        }
+                    } else {
+                        val intent = Intent().apply { putExtra(QR_CODE_STRING, str) }
+                        navigator.finishActivityForResult(intent)
+                    }
                 }
             }
 

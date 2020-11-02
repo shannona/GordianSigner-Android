@@ -41,7 +41,7 @@
     <string name="psbt_signed">PSBT signed ✅</string>
     <string name="you_may_now_export_it_by_tapping_the_export_button">You may now export it by tapping the \"export\" button"</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
-    <string name="qr_code">QR code</string>
+    <string name="qr_ur_code">QR/UR code</string>
     <string name="save_as_psbt_file">Save as .psbt file</string>
     <string name="add_signer">Add Signer</string>
     <string name="psbt_signer">PSBT Signer</string>
@@ -66,6 +66,7 @@
     <string name="bad_descriptor">Bad descriptor.</string>
     <string name="unsupported_format">Unsupported format.</string>
     <string name="account_map_completed">Account map is already completed.</string>
+    <string name="account_map_filled">Account map is already filled.</string>
     <string name="could_not_delete_account">Could not permanently delete your account from local storage due to unexpected problem.</string>
     <string name="could_not_get_your_account">Could not get your account key from local storage due to unexpected problem.</string>
     <string name="fetching_accounts_failed">Fetching accounts from local storage failed.</string>
@@ -91,4 +92,6 @@
     <string name="fingerprint_is_not_correct">Fingerprint is not correct!</string>
     <string name="account_map_info">Account Map Info\n- Signers Required: %1$d \n- Total Signers: %2$d \n- Joined Singers: %3$s</string>
     <string name="psbt_info">PSBT Info\n- Joined Signers: %2$s \n- Signatures: %1$d</string>
+    <string name="animate">Animate</string>
+    <string name="no_animate">No Animate</string>
 </resources>

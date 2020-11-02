@@ -17,6 +17,7 @@ import com.bc.gordiansigner.helper.Bip39
 import com.bc.gordiansigner.helper.Error.FINGERPRINT_NOT_MATCH_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
+import com.bc.gordiansigner.helper.ext.replaceSpaces
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
@@ -80,11 +81,14 @@ class AddAccountActivity : BaseAppCompatActivity() {
         }
 
         buttonAdd.setSafetyOnclickListener {
-            if (autoCompleteCharCount >= 0) {
-                val word = editText.text.toString()
-                addedWords.add(word)
+            val wordsString = editText.text?.replaceSpaces() ?: return@setSafetyOnclickListener
+            val words = wordsString.split(" ")
 
-                wordsEditText.append("${if (addedWords.size > 1) "\n" else ""}${addedWords.size}. $word")
+            if (words.all { bip39Words.contains(it) }) {
+                words.forEach { word ->
+                    addedWords.add(word)
+                    wordsEditText.append("${if (addedWords.size > 1) "\n" else ""}${addedWords.size}. $word")
+                }
 
                 autoCompleteCharCount = -1
                 editText.setText("")
