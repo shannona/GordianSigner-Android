@@ -8,15 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bc.gordiansigner.R
-import com.bc.gordiansigner.helper.ext.gone
-import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
-import com.bc.gordiansigner.helper.ext.toQrCode
-import com.bc.gordiansigner.helper.ext.visible
+import com.bc.gordiansigner.helper.ext.*
 import com.bc.ur.UR
 import com.bc.ur.UREncoder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.fragment_qr_code.*
 import java.util.*
+
 
 class QRCodeBottomSheetDialog(
     private val base64: String,
@@ -66,7 +64,7 @@ class QRCodeBottomSheetDialog(
                     animate()
                 } else {
                     handler.removeCallbacksAndMessages(null)
-                    progressBar.gone()
+                    progressBar.invisible()
                     btnAnimate.setText(R.string.animate)
                     ivQRCode.setImageBitmap(qrBitmap)
                 }

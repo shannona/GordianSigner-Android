@@ -9,8 +9,9 @@
         android:id="@+id/ivQRCode"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginHorizontal="16dp"
         android:adjustViewBounds="true"
-        android:paddingTop="24dp"
+        android:paddingTop="16dp"
         app:layout_constraintBottom_toTopOf="@id/progressBar" />
 
     <ProgressBar
@@ -22,7 +23,7 @@
         android:layout_marginBottom="16dp"
         android:progressTint="@color/colorAccent"
         android:scaleY="2.5"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@id/btnAnimate" />
 
     <androidx.appcompat.widget.AppCompatButton
