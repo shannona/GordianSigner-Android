@@ -91,7 +91,7 @@
     <string name="save">Save</string>
     <string name="fingerprint_is_not_correct">Fingerprint is not correct!</string>
     <string name="account_map_info">Account Map Info\n- Signers Required: %1$d \n- Total Signers: %2$d \n- Joined Singers: %3$s</string>
-    <string name="psbt_info">PSBT Info\n- Joined Signers: %2$s \n- Signatures: %1$d</string>
+    <string name="psbt_info">PSBT Info\n- Participants (Signers): %2$s \n- Signature Count: %1$d</string>
     <string name="animate">Animate</string>
     <string name="no_animate">No Animate</string>
     <string name="percent_completed">%1$d%% completed</string>
