@@ -17,6 +17,7 @@ import com.bc.gordiansigner.helper.Bip39
 import com.bc.gordiansigner.helper.Error.FINGERPRINT_NOT_MATCH_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
+import com.bc.gordiansigner.helper.ext.hideKeyBoard
 import com.bc.gordiansigner.helper.ext.replaceSpaces
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
 import com.bc.gordiansigner.model.KeyInfo
@@ -32,10 +33,12 @@ class AddAccountActivity : BaseAppCompatActivity() {
     companion object {
         private const val TAG = "AddAccountActivity"
         private const val KEY_INFO = "key_info"
+        private const val NEED_RESULT = "need_result"
         private const val KEY_XPRV = "key_xprv"
 
-        fun getBundle(keyInfo: KeyInfo) = Bundle().apply {
+        fun getBundle(keyInfo: KeyInfo?, needResult: Boolean = true) = Bundle().apply {
             putParcelable(KEY_INFO, keyInfo)
+            putBoolean(NEED_RESULT, needResult)
         }
 
         fun extractResultData(intent: Intent) = intent.getStringExtra(KEY_XPRV)
@@ -50,7 +53,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
     @Inject
     internal lateinit var dialogController: DialogController
 
-    private var isEditing = false
+    private var shouldReturnResult = false
     private var keyInfo: KeyInfo? = null
 
     private val bip39Words = Bip39.words
@@ -67,11 +70,11 @@ class AddAccountActivity : BaseAppCompatActivity() {
         super.initComponents()
 
         intent.getParcelableExtra<KeyInfo>(KEY_INFO)?.let {
-            isEditing = true
             keyInfo = it
             aliasEditText.setText(it.alias)
             tvHeader.text = getString(R.string.signer_format, it.fingerprint, it.alias)
         }
+        shouldReturnResult = intent.getBooleanExtra(NEED_RESULT, false)
 
         title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -87,6 +90,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
         buttonAdd.setSafetyOnclickListener {
             val wordsString = editText.text?.replaceSpaces() ?: return@setSafetyOnclickListener
             val words = wordsString.split(" ")
+            this.hideKeyBoard()
 
             if (words.all { bip39Words.contains(it) }) {
                 words.forEach { word ->
@@ -180,7 +184,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
                         R.string.success,
                         if (scSavePrivate.isChecked) R.string.seed_words_encrypted_and_saved else R.string.your_account_has_been_saved_to_the_account_book
                     ) {
-                        if (!isEditing) {
+                        if (!shouldReturnResult) {
                             navigator.anim(RIGHT_LEFT).finishActivity()
                         } else {
                             val intent = Intent().apply { putExtra(KEY_XPRV, res.data()!!) }

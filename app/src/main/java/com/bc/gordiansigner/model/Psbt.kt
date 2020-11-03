@@ -1,5 +1,6 @@
 package com.bc.gordiansigner.model
 
+import com.bc.gordiansigner.helper.Error
 import com.blockstream.libwally.Wally.*
 
 class Psbt(base64: String) {
@@ -47,7 +48,7 @@ class Psbt(base64: String) {
     fun sign(privKey: ByteArray) {
         val base64 = toBase64()
         psbt_sign(psbt, privKey, 0)
-        if (base64 == toBase64()) throw IllegalArgumentException("invalid key")
+        if (base64 == toBase64()) throw Error.HD_KEY_NOT_MATCH_ERROR
     }
 
     fun sign(hdKey: HDKey) {

@@ -12,6 +12,7 @@ import androidx.biometric.BiometricManager
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.Error.HD_KEY_NOT_MATCH_ERROR
 import com.bc.gordiansigner.helper.Error.NO_APPROPRIATE_HD_KEY_ERROR
 import com.bc.gordiansigner.helper.Error.NO_HD_KEY_FOUND_ERROR
 import com.bc.gordiansigner.helper.Error.PSBT_UNABLE_TO_SIGN_ERROR
@@ -153,9 +154,17 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                             })
                     ) {
                         val message = when (res.throwable()!!) {
-                            NO_HD_KEY_FOUND_ERROR -> R.string.no_account_found
                             PSBT_UNABLE_TO_SIGN_ERROR -> R.string.psbt_is_unable_to_sign
-                            NO_APPROPRIATE_HD_KEY_ERROR -> R.string.no_appropriate_account_found
+                            HD_KEY_NOT_MATCH_ERROR -> R.string.your_account_does_not_match_with_current_psbt
+                            NO_HD_KEY_FOUND_ERROR, NO_APPROPRIATE_HD_KEY_ERROR -> {
+                                val bundle = AddAccountActivity.getBundle(null)
+                                navigator.anim(RIGHT_LEFT).startActivityForResult(
+                                    AddAccountActivity::class.java,
+                                    REQUEST_CODE_INPUT_KEY,
+                                    bundle
+                                )
+                                return@Observer
+                            }
                             else -> R.string.unable_to_sign_psbt_unknown_error
                         }
                         dialogController.alert(

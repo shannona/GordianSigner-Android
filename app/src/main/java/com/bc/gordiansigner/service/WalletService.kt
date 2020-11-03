@@ -64,13 +64,11 @@ class WalletService @Inject constructor(
         }
     }
 
-    fun saveKey(keyInfo: KeyInfo, hdKey: HDKey) = saveKeyInfo(keyInfo).flatMap {
-        if (keyInfo.isSaved) {
-            saveHDKey(hdKey)
-        } else {
-            Single.just(hdKey)
-        }
-    }
+    fun saveKey(keyInfo: KeyInfo, hdKey: HDKey) = if (keyInfo.isSaved) {
+        saveHDKey(hdKey)
+    } else {
+        Single.just(hdKey)
+    }.flatMap { saveKeyInfo(keyInfo).map { hdKey } }
 
     fun deleteHDKey(fingerprintHex: String): Completable = getHDKeys().flatMapCompletable { keys ->
         if (keys.any { it.fingerprintHex == fingerprintHex }) {
