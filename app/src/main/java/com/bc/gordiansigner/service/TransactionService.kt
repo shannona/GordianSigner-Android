@@ -1,5 +1,6 @@
 package com.bc.gordiansigner.service
 
+import com.bc.gordiansigner.helper.Error
 import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.model.Psbt
 import com.bc.gordiansigner.service.storage.file.FileStorageApi
@@ -14,7 +15,9 @@ class TransactionService @Inject constructor(
 ) : BaseService(sharedPrefApi, fileStorageApi) {
 
     fun signPsbt(psbt: Psbt, hdKey: HDKey): Single<String> = Single.fromCallable {
-        val path = psbt.inputBip32Derivs.first { it.fingerprintHex == hdKey.fingerprintHex }.path
+        val path =
+            psbt.inputBip32Derivs.firstOrNull { it.fingerprintHex == hdKey.fingerprintHex }?.path
+                ?: throw Error.HD_KEY_NOT_MATCH_ERROR
         psbt.sign(hdKey.derive(path))
         psbt.toBase64()
     }.subscribeOn(Schedulers.computation())
