@@ -2,9 +2,6 @@
 
 source scripts/helper.sh
 
-echo "Cleanup..."
-./scripts/cleanup.sh
-
 export CC=clang
 export ANDROID_NDK=$HOME/android-ndk-r19c
 
@@ -17,13 +14,13 @@ else
   fi
 fi
 
-echo "Building android libraries..."
+echo "Building libwally-core..."
 pushd deps/libwally-core || exit
 . tools/build_android_libraries.sh
 popd || exit
 
-echo "Copying release files..."
+echo "Copying libwally-core release files..."
 cp -r deps/libwally-core/release/src/swig_java/src/com app/src/main/java
 mkdir -p app/src/main/libs/jni
 cp -r deps/libwally-core/release/lib/* app/src/main/libs/jni
-echo "Done"
+echo "Done building libwally-core"

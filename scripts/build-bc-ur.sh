@@ -22,7 +22,7 @@ pushd deps/bc-ur-java/android || exit
 ./gradlew clean assembleRelease
 popd || exit
 
-echo 'Copying aar file...'
+echo 'Copying bc-ur aar file...'
 mkdir -p app/libs
 cp -r deps/bc-ur-java/android/app/build/outputs/aar/app-release.aar app/libs
-echo 'Done'
+echo 'Done building bc-ur'
