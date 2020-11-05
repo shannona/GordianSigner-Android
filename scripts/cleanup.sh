@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 rm -rf app/build
 rm -rf app/src/main/libs/jni
