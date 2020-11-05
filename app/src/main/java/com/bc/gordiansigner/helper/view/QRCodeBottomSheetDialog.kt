@@ -44,7 +44,7 @@ class QRCodeBottomSheetDialog(
 
         if (animateEnabled) {
             val data = Base64.decode(base64, Base64.NO_WRAP)
-            val ur = UR("psbt", data)
+            val ur = UR.create("psbt", data)
 
             val qrBitmap = UREncoder.encode(ur).toQrCode(QR_CODE_SIZE)
             ivQRCode.setImageBitmap(qrBitmap)
