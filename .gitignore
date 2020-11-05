@@ -105,5 +105,6 @@ Wally.java
 keystores/release.keystore
 keystores/release.properties
 *.properties
+*.aar
 
 # End of Specific for project
