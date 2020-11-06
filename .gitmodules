@@ -4,4 +4,4 @@
 	branch = master
 [submodule "deps/bc-ur-java"]
 	path = deps/bc-ur-java
-	url = git@github.com:jollyjoker992/bc-ur-java.git
+	url = git@github.com:BlockchainCommons/bc-ur-java.git
