@@ -81,6 +81,8 @@
         android:layout_marginBottom="16dp"
         android:background="@drawable/bordered_grey_rounded_background"
         android:hint="@string/alias"
+        android:imeOptions="actionDone"
+        android:inputType="text"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:textColor="@color/white"

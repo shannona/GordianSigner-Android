@@ -15,8 +15,8 @@
         android:text="@string/create_new_contact"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatEditText
@@ -27,6 +27,8 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/bordered_grey_rounded_background"
         android:hint="@string/fingerprint"
+        android:imeOptions="actionDone"
+        android:inputType="text"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:textColor="@color/white"
@@ -43,6 +45,8 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/bordered_grey_rounded_background"
         android:hint="@string/alias"
+        android:imeOptions="actionDone"
+        android:inputType="text"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:textColor="@color/white"

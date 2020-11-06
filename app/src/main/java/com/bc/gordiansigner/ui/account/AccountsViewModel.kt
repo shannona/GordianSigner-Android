@@ -4,13 +4,13 @@ import androidx.lifecycle.Lifecycle
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.model.KeyInfo
-import com.bc.gordiansigner.service.WalletService
+import com.bc.gordiansigner.service.AccountService
 import com.bc.gordiansigner.ui.BaseViewModel
 import io.reactivex.Single
 
 class AccountsViewModel(
     lifecycle: Lifecycle,
-    private val walletService: WalletService,
+    private val accountService: AccountService,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
 
@@ -22,7 +22,7 @@ class AccountsViewModel(
     fun fetchKeysInfo() {
         keyInfoLiveData.add(
             rxLiveDataTransformer.single(
-                walletService.getKeysInfo()
+                accountService.getKeysInfo()
             )
         )
     }
@@ -30,7 +30,7 @@ class AccountsViewModel(
     fun deleteKeyInfo(fingerprintHex: String) {
         deleteKeysLiveData.add(
             rxLiveDataTransformer.single(
-                walletService.deleteKeyInfo(fingerprintHex).andThen(Single.just(fingerprintHex))
+                accountService.deleteKeyInfo(fingerprintHex).andThen(Single.just(fingerprintHex))
             )
         )
     }
@@ -38,21 +38,21 @@ class AccountsViewModel(
     fun deleteHDKey(fingerprintHex: String) {
         deleteKeysLiveData.add(
             rxLiveDataTransformer.single(
-                walletService.deleteHDKey(fingerprintHex).andThen(Single.just(fingerprintHex))
+                accountService.deleteHDKey(fingerprintHex).andThen(Single.just(fingerprintHex))
             )
         )
     }
 
     fun getHDKeyXprv(fingerprint: String) {
         hdKeyXprvLiveData.add(rxLiveDataTransformer.single(
-            walletService.getHDKey(fingerprint).map { it.xprv }
+            accountService.getHDKey(fingerprint).map { it.xprv }
         ))
     }
 
     fun updateKeyInfo(keyInfo: KeyInfo) {
         updateKeysLiveData.add(
             rxLiveDataTransformer.single(
-                walletService.saveKeyInfo(keyInfo)
+                accountService.saveKeyInfo(keyInfo)
             )
         )
     }

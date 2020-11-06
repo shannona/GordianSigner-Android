@@ -16,7 +16,7 @@ import io.reactivex.schedulers.Schedulers
 import java.security.SecureRandom
 import javax.inject.Inject
 
-class WalletService @Inject constructor(
+class AccountService @Inject constructor(
     sharedPrefApi: SharedPrefApi,
     fileStorageApi: FileStorageApi
 ) : BaseService(sharedPrefApi, fileStorageApi) {
