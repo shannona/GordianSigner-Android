@@ -109,7 +109,7 @@ class QRScannerActivity : BaseAppCompatActivity() {
                         if (decoder.isComplete) {
                             if (decoder.isSuccess) {
                                 val ur = decoder.resultUR()
-                                val base64 = Base64.encodeToString(ur.cbor, Base64.NO_WRAP)
+                                val base64 = Base64.encodeToString(ur.message, Base64.NO_WRAP)
                                 val intent = Intent().apply { putExtra(QR_CODE_STRING, base64) }
                                 navigator.finishActivityForResult(intent)
                             } else {
