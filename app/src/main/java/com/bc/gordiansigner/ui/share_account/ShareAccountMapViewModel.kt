@@ -8,7 +8,7 @@ import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.service.AccountMapService
 import com.bc.gordiansigner.service.ContactService
-import com.bc.gordiansigner.service.WalletService
+import com.bc.gordiansigner.service.AccountService
 import com.bc.gordiansigner.ui.BaseViewModel
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -18,7 +18,7 @@ class ShareAccountMapViewModel(
     lifecycle: Lifecycle,
     private val accountMapService: AccountMapService,
     private val contactService: ContactService,
-    private val walletService: WalletService,
+    private val accountService: AccountService,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
 
@@ -33,7 +33,7 @@ class ShareAccountMapViewModel(
                     if (fingerprints.isNotEmpty()) {
                         Single.zip(
                             contactService.getContactKeysInfo(),
-                            walletService.getKeysInfo(),
+                            accountService.getKeysInfo(),
                             BiFunction<List<KeyInfo>, List<KeyInfo>, Pair<List<KeyInfo>, Descriptor>> { contacts, keys ->
                                 val keysInfo =
                                     keys.toMutableSet().also { it.addAll(contacts) }.toList()

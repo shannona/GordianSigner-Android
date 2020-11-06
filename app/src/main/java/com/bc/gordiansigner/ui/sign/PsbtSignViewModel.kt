@@ -11,7 +11,7 @@ import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.model.Psbt
 import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.service.TransactionService
-import com.bc.gordiansigner.service.WalletService
+import com.bc.gordiansigner.service.AccountService
 import com.bc.gordiansigner.ui.BaseViewModel
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -19,7 +19,7 @@ import io.reactivex.schedulers.Schedulers
 
 class PsbtSignViewModel(
     lifecycle: Lifecycle,
-    private val walletService: WalletService,
+    private val accountService: AccountService,
     private val contactService: ContactService,
     private val transactionService: TransactionService,
     private val rxLiveDataTransformer: RxLiveDataTransformer
@@ -37,7 +37,7 @@ class PsbtSignViewModel(
                 .flatMap { psbt ->
                     Single.zip(
                         contactService.getContactKeysInfo(),
-                        walletService.getKeysInfo(),
+                        accountService.getKeysInfo(),
                         BiFunction<List<KeyInfo>, List<KeyInfo>, List<KeyInfo>> { contacts, keys ->
                             keys.toMutableSet().also { it.addAll(contacts) }.toList()
                         }
@@ -72,7 +72,7 @@ class PsbtSignViewModel(
                     hdKey
                 ).map { Pair(it, null) }
             } else {
-                walletService.getKeysInfo().flatMap { keysInfo ->
+                accountService.getKeysInfo().flatMap { keysInfo ->
                     if (keysInfo.isEmpty()) {
                         Single.error(NO_HD_KEY_FOUND_ERROR)
                     } else {
@@ -90,7 +90,7 @@ class PsbtSignViewModel(
 
                             contactService.appendContactKeysInfo(contactsKeyInfo)
                                 .andThen(if (keyInfo.isSaved) {
-                                    walletService.getHDKey(keyInfo.fingerprint).flatMap { hdKey ->
+                                    accountService.getHDKey(keyInfo.fingerprint).flatMap { hdKey ->
                                         transactionService.signPsbt(
                                             psbt,
                                             hdKey
