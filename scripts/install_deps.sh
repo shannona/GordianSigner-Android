@@ -11,6 +11,7 @@ else
 fi
 
 echo "Checking and installing dependencies '${deps[*]}'..."
+apt-get update
 for dep in "${deps[@]}"; do
   check_dep $dep
 done
