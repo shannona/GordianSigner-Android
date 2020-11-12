@@ -17,6 +17,10 @@ data class KeyInfo(
     var alias: String,
 
     @Expose
+    @SerializedName("last_used")
+    var lastUsed: String,
+
+    @Expose
     @SerializedName("is_saved")
     var isSaved: Boolean
 ): Parcelable {

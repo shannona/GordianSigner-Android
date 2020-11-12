@@ -1,8 +1,10 @@
 package com.bc.gordiansigner.service
 
 import com.bc.gordiansigner.helper.Network
+import com.bc.gordiansigner.helper.ext.SIMPLE_DATE_TIME_FORMAT
 import com.bc.gordiansigner.helper.ext.fromJson
 import com.bc.gordiansigner.helper.ext.newGsonInstance
+import com.bc.gordiansigner.helper.ext.toString
 import com.bc.gordiansigner.model.Bip39Mnemonic
 import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.model.KeyInfo
@@ -14,6 +16,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.security.SecureRandom
+import java.util.*
 import javax.inject.Inject
 
 class AccountService @Inject constructor(
@@ -43,7 +46,9 @@ class AccountService @Inject constructor(
     }
 
     fun getHDKey(fingerprint: String) =
-        getHDKeys().map { keys -> keys.first { it.fingerprintHex == fingerprint } }
+        getHDKeys()
+            .map { keys -> keys.first { it.fingerprintHex == fingerprint } }
+            .flatMap { updateKeyInfoLastUsed(it.fingerprintHex).andThen(Single.just(it)) }
 
     fun getHDKeys() =
         fileStorageApi.SUPER_SECURE.rxSingle { gateway ->
@@ -73,7 +78,7 @@ class AccountService @Inject constructor(
     fun deleteHDKey(fingerprintHex: String): Completable = getHDKeys().flatMapCompletable { keys ->
         if (keys.any { it.fingerprintHex == fingerprintHex }) {
             val newKeys = keys.filterNot { it.fingerprintHex == fingerprintHex }.toSet()
-            saveHDKeys(newKeys).andThen(updateKeyInfo(fingerprintHex, false))
+            saveHDKeys(newKeys).andThen(updateKeyInfoSavingState(fingerprintHex))
         } else {
             Completable.complete()
         }
@@ -87,11 +92,20 @@ class AccountService @Inject constructor(
         } ?: Completable.complete()
     }
 
-    private fun updateKeyInfo(fingerprint: String, isSaved: Boolean): Completable =
+    private fun updateKeyInfoSavingState(fingerprint: String): Completable =
         getKeysInfo().flatMapCompletable { keysInfo ->
             val keyInfoSet = keysInfo.toMutableSet()
             keyInfoSet.firstOrNull { it.fingerprint == fingerprint }?.let {
-                it.isSaved = isSaved
+                it.isSaved = false
+                saveKeysInfo(keyInfoSet)
+            } ?: Completable.complete()
+        }
+
+    private fun updateKeyInfoLastUsed(fingerprint: String): Completable =
+        getKeysInfo().flatMapCompletable { keysInfo ->
+            val keyInfoSet = keysInfo.toMutableSet()
+            keyInfoSet.firstOrNull { it.fingerprint == fingerprint }?.let {
+                it.lastUsed = Date().toString(SIMPLE_DATE_TIME_FORMAT)
                 saveKeysInfo(keyInfoSet)
             } ?: Completable.complete()
         }
@@ -113,6 +127,7 @@ class AccountService @Inject constructor(
                 it.alias = keyInfo.alias
             }
             it.isSaved = keyInfo.isSaved
+            it.lastUsed = keyInfo.lastUsed
         } ?: let {
             keyInfoSet.add(keyInfo)
         }

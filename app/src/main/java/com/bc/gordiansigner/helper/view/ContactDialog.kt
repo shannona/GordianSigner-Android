@@ -9,10 +9,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.FINGERPRINT_REGEX
-import com.bc.gordiansigner.helper.ext.gone
-import com.bc.gordiansigner.helper.ext.setOpacity
-import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
-import com.bc.gordiansigner.helper.ext.visible
+import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.model.KeyInfo
 import kotlinx.android.synthetic.main.fragment_contact.*
 import java.util.*
@@ -65,7 +62,12 @@ class ContactDialog(
                 val regex = Regex(FINGERPRINT_REGEX)
                 val fingerprint = etFingerprint.text.toString().toLowerCase(Locale.ENGLISH)
                 if (regex.matches(fingerprint)) {
-                    val keyInfo = KeyInfo(fingerprint, etAlias.text.toString(), false)
+                    val keyInfo = KeyInfo(
+                        fingerprint,
+                        etAlias.text.toString(),
+                        Date().toString(SIMPLE_DATE_TIME_FORMAT),
+                        false
+                    )
                     onSave.invoke(keyInfo)
                     dismiss()
                 } else {

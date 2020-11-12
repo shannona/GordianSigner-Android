@@ -41,7 +41,11 @@ class AddAccountActivity : BaseAppCompatActivity() {
             putBoolean(NEED_RESULT, needResult)
         }
 
-        fun extractResultData(intent: Intent) = intent.getStringExtra(KEY_XPRV)
+        fun extractResultData(intent: Intent): Pair<KeyInfo?, String?> {
+            val keyInfo = intent.getParcelableExtra<KeyInfo>(KEY_INFO)
+            val xprv = intent.getStringExtra(KEY_XPRV)
+            return Pair(keyInfo, xprv)
+        }
     }
 
     @Inject
@@ -180,15 +184,20 @@ class AddAccountActivity : BaseAppCompatActivity() {
         viewModel.importAccountLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    dialogController.alert(
-                        R.string.success,
-                        if (scSavePrivate.isChecked) R.string.seed_words_encrypted_and_saved else R.string.your_account_has_been_saved_to_the_account_book
-                    ) {
-                        if (!shouldReturnResult) {
-                            navigator.anim(RIGHT_LEFT).finishActivity()
-                        } else {
-                            val intent = Intent().apply { putExtra(KEY_XPRV, res.data()!!) }
-                            navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
+                    res.data()?.let { (keyInfo, xprv) ->
+                        dialogController.alert(
+                            R.string.success,
+                            if (scSavePrivate.isChecked) R.string.seed_words_encrypted_and_saved else R.string.your_account_has_been_saved_to_the_account_book
+                        ) {
+                            if (!shouldReturnResult) {
+                                navigator.anim(RIGHT_LEFT).finishActivity()
+                            } else {
+                                val intent = Intent().apply {
+                                    putExtra(KEY_XPRV, xprv)
+                                    putExtra(KEY_INFO, keyInfo)
+                                }
+                                navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
+                            }
                         }
                     }
                 }

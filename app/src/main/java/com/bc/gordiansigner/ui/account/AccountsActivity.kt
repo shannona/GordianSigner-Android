@@ -314,7 +314,7 @@ class AccountsActivity : BaseAppCompatActivity() {
             when (requestCode) {
                 REQUEST_CODE_INPUT_KEY -> {
                     data?.let {
-                        val xprv = AddAccountActivity.extractResultData(it) ?: return@let
+                        val (_, xprv) = AddAccountActivity.extractResultData(it)
                         val intent = Intent().apply { putExtra(SELECTED_KEY, xprv) }
                         navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
                     }

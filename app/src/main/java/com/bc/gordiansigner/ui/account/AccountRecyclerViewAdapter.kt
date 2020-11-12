@@ -95,11 +95,13 @@ class AccountRecyclerViewAdapter(
         fun bind(keyInfo: KeyInfo, isEditing: Boolean) {
             this.keyInfo = keyInfo
             with(itemView) {
-                tvFingerprint.text = if (keyInfo.alias.isNotEmpty()) context.getString(
-                    R.string.fingerprint_alias_format,
-                    keyInfo.fingerprint,
-                    keyInfo.alias
-                ) else keyInfo.fingerprint
+                tvAlias.text =
+                    if (keyInfo.alias.isNotEmpty()) keyInfo.alias else context.getString(R.string.unnamed)
+
+                tvFingerprint.text =
+                    context.getString(R.string.fingerprint_format, keyInfo.fingerprint)
+
+                tvLastUsed.text = context.getString(R.string.last_used_format, keyInfo.lastUsed)
 
                 if (keyInfo.isSaved) {
                     buttonKey.visible()

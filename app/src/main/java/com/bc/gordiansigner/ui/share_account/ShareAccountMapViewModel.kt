@@ -1,18 +1,21 @@
 package com.bc.gordiansigner.ui.share_account
 
 import androidx.lifecycle.Lifecycle
+import com.bc.gordiansigner.helper.ext.SIMPLE_DATE_TIME_FORMAT
+import com.bc.gordiansigner.helper.ext.toString
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.model.Descriptor
 import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.service.AccountMapService
-import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.service.AccountService
+import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.ui.BaseViewModel
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import java.util.*
 
 class ShareAccountMapViewModel(
     lifecycle: Lifecycle,
@@ -43,7 +46,12 @@ class ShareAccountMapViewModel(
                                     if (index != -1) {
                                         keysInfo[index]
                                     } else {
-                                        KeyInfo(fingerprint, "unknown", false)
+                                        KeyInfo(
+                                            fingerprint,
+                                            "unknown",
+                                            Date().toString(SIMPLE_DATE_TIME_FORMAT),
+                                            false
+                                        )
                                     }
                                 }
                                 Pair(joinedSigner, descriptor)
@@ -64,7 +72,9 @@ class ShareAccountMapViewModel(
                     val hdKey = HDKey(xprv)
 
                     val keyInfoSet = descriptor.validFingerprints()
-                        .map { KeyInfo(it, "", false) }.toSet()
+                        .map {
+                            KeyInfo(it, "", Date().toString(SIMPLE_DATE_TIME_FORMAT), false)
+                        }.toSet()
 
                     if (keyInfoSet.isNotEmpty()) {
                         contactService.appendContactKeysInfo(keyInfoSet)
