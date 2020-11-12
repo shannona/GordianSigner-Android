@@ -24,12 +24,16 @@ class QRCodeBottomSheetDialog(
     companion object {
         const val TAG = "QrCodeBottomSheetDialog"
         private const val QR_CODE_SIZE = 500
+        private const val MAX_PFS = 20
+        private const val MIN_PFS = 1
     }
 
     private val handler = Handler(Looper.getMainLooper())
     private val parts = mutableListOf<String>()
     private var partIndex = 0
     private var isAnimating = false
+
+    private var fps = 5
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,14 +63,27 @@ class QRCodeBottomSheetDialog(
             btnAnimate.setSafetyOnclickListener {
                 isAnimating = !isAnimating
                 if (isAnimating) {
-                    progressBar.visible()
+                    tvFps.text = getString(R.string.fps, fps)
+                    layoutSpeed.visible()
                     btnAnimate.setText(R.string.no_animate)
                     animate()
                 } else {
                     handler.removeCallbacksAndMessages(null)
-                    progressBar.invisible()
+                    layoutSpeed.invisible()
                     btnAnimate.setText(R.string.animate)
                     ivQRCode.setImageBitmap(qrBitmap)
+                }
+            }
+
+            btnFast.setOnClickListener {
+                if (fps < MAX_PFS) {
+                    tvFps.text = getString(R.string.fps, ++fps)
+                }
+            }
+
+            btnSlow.setOnClickListener {
+                if (fps > MIN_PFS) {
+                    tvFps.text = getString(R.string.fps, --fps)
                 }
             }
         } else {
@@ -80,7 +97,7 @@ class QRCodeBottomSheetDialog(
         ivQRCode.setImageBitmap(qrCode)
         progressBar.progress = (partIndex + 1) * 100 / parts.size
         if (partIndex < parts.size - 1) partIndex += 1 else partIndex = 0
-        handler.postDelayed({ animate() }, 200)
+        handler.postDelayed({ animate() }, (1000L / fps))
     }
 
     override fun onDestroy() {
