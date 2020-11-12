@@ -99,4 +99,11 @@
     <string name="content_is_invalid_please_check_and_try_again">Content is invalid. Please check and try again!</string>
     <string name="please_input_your_recovery_words">Please input your recovery words!</string>
     <string name="incorrect_words">Incorrect words!</string>
+
+    <string name="confirm_to_sign_psbt">Confirm to Sign PSBT?</string>
+    <string name="please_review_your_info_before_signing">"Please review your info before signing. You will sign the PSBT with your key:\n\n 🔑 %1$s (%2$s)"</string>
+    <string name="fps">%1$d fps</string>
+    <string name="unnamed">Unnamed</string>
+    <string name="fingerprint_format">📝 Fingerprint: %1$s</string>
+    <string name="last_used_format">⏱️ Last used: %1$s</string>
 </resources>
