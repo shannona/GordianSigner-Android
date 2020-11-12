@@ -49,7 +49,7 @@ class ShareAccountMapViewModel(
                                         KeyInfo(
                                             fingerprint,
                                             "unknown",
-                                            Date().toString(SIMPLE_DATE_TIME_FORMAT),
+                                            Date(),
                                             false
                                         )
                                     }
@@ -73,7 +73,7 @@ class ShareAccountMapViewModel(
 
                     val keyInfoSet = descriptor.validFingerprints()
                         .map {
-                            KeyInfo(it, "", Date().toString(SIMPLE_DATE_TIME_FORMAT), false)
+                            KeyInfo.default(it, "", false)
                         }.toSet()
 
                     if (keyInfoSet.isNotEmpty()) {

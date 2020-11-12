@@ -105,7 +105,7 @@ class AccountService @Inject constructor(
         getKeysInfo().flatMapCompletable { keysInfo ->
             val keyInfoSet = keysInfo.toMutableSet()
             keyInfoSet.firstOrNull { it.fingerprint == fingerprint }?.let {
-                it.lastUsed = Date().toString(SIMPLE_DATE_TIME_FORMAT)
+                it.lastUsed = Date()
                 saveKeysInfo(keyInfoSet)
             } ?: Completable.complete()
         }

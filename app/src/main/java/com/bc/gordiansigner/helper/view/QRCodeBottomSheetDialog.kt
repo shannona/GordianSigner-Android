@@ -24,8 +24,8 @@ class QRCodeBottomSheetDialog(
     companion object {
         const val TAG = "QrCodeBottomSheetDialog"
         private const val QR_CODE_SIZE = 500
-        private const val MAX_PFS = 20
-        private const val MIN_PFS = 1
+        private const val MAX_FPS = 20
+        private const val MIN_FPS = 1
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -76,13 +76,13 @@ class QRCodeBottomSheetDialog(
             }
 
             btnFast.setOnClickListener {
-                if (fps < MAX_PFS) {
+                if (fps < MAX_FPS) {
                     tvFps.text = getString(R.string.fps, ++fps)
                 }
             }
 
             btnSlow.setOnClickListener {
-                if (fps > MIN_PFS) {
+                if (fps > MIN_FPS) {
                     tvFps.text = getString(R.string.fps, --fps)
                 }
             }

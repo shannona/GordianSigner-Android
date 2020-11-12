@@ -5,9 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bc.gordiansigner.R
-import com.bc.gordiansigner.helper.ext.gone
-import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
-import com.bc.gordiansigner.helper.ext.visible
+import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.model.KeyInfo
 import kotlinx.android.synthetic.main.item_signer.view.*
 
@@ -101,7 +99,8 @@ class AccountRecyclerViewAdapter(
                 tvFingerprint.text =
                     context.getString(R.string.fingerprint_format, keyInfo.fingerprint)
 
-                tvLastUsed.text = context.getString(R.string.last_used_format, keyInfo.lastUsed)
+                tvLastUsed.text = context.getString(R.string.last_used_format, keyInfo.lastUsed?.toString(
+                    SIMPLE_DATE_TIME_FORMAT))
 
                 if (keyInfo.isSaved) {
                     buttonKey.visible()

@@ -2,8 +2,6 @@ package com.bc.gordiansigner.ui.sign
 
 import androidx.lifecycle.Lifecycle
 import com.bc.gordiansigner.helper.Error.PSBT_UNABLE_TO_SIGN_ERROR
-import com.bc.gordiansigner.helper.ext.SIMPLE_DATE_TIME_FORMAT
-import com.bc.gordiansigner.helper.ext.toString
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.model.HDKey
@@ -16,7 +14,6 @@ import com.bc.gordiansigner.ui.BaseViewModel
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
-import java.util.*
 
 class PsbtSignViewModel(
     lifecycle: Lifecycle,
@@ -27,7 +24,7 @@ class PsbtSignViewModel(
 ) : BaseViewModel(lifecycle) {
 
     internal val psbtSigningLiveData = CompositeLiveData<String>()
-    internal val getKeyToSignLiveData = CompositeLiveData<KeyInfo?>()
+    internal val getKeyToSignLiveData = CompositeLiveData<KeyInfo>()
     internal val psbtCheckingLiveData = CompositeLiveData<Pair<List<KeyInfo>, Psbt>>()
 
     fun checkPsbt(base64: String) {
@@ -50,9 +47,7 @@ class PsbtSignViewModel(
                             if (index != -1) {
                                 keysInfo[index]
                             } else {
-                                KeyInfo(bip32Deriv.fingerprintHex, "unknown", Date().toString(
-                                    SIMPLE_DATE_TIME_FORMAT
-                                ), false)
+                                KeyInfo.unknown(bip32Deriv.fingerprintHex)
                             }
                         }
                         Pair(joinedSigners, psbt)
@@ -71,19 +66,18 @@ class PsbtSignViewModel(
         }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io()).flatMap { psbt ->
             accountService.getKeysInfo().flatMap { keysInfo ->
                 if (keysInfo.isEmpty()) {
-                    Single.just(null)
+                    Single.just(KeyInfo.empty())
                 } else {
                     val inputBip32DerivFingerprints =
                         psbt.inputBip32Derivs.map { it.fingerprintHex }
                     val keyInfo =
                         keysInfo.firstOrNull { inputBip32DerivFingerprints.contains(it.fingerprint) }
                     if (keyInfo == null) {
-                        Single.just(null)
+                        Single.just(KeyInfo.empty())
                     } else {
                         val contactsKeyInfo = inputBip32DerivFingerprints
                             .filter { it != keyInfo.fingerprint }
-                            .map { KeyInfo(it, "", Date().toString(
-                                SIMPLE_DATE_TIME_FORMAT), false) }
+                            .map { KeyInfo.default(it, "", false) }
                             .toSet()
 
                         contactService.appendContactKeysInfo(contactsKeyInfo)

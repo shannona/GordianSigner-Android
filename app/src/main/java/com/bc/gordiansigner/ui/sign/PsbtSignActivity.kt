@@ -182,8 +182,8 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         viewModel.getKeyToSignLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    res.data().let { keyInfo ->
-                        if (keyInfo?.isSaved == true) {
+                    res.data()?.let { keyInfo ->
+                        if (!keyInfo.isEmpty() && keyInfo.isSaved) {
                             signPsbt(keyInfo, null)
                         } else {
                             val bundle = AddAccountActivity.getBundle(keyInfo)

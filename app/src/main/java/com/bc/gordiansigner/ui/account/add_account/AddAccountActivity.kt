@@ -37,8 +37,10 @@ class AddAccountActivity : BaseAppCompatActivity() {
         private const val KEY_XPRV = "key_xprv"
 
         fun getBundle(keyInfo: KeyInfo?, needResult: Boolean = true) = Bundle().apply {
-            putParcelable(KEY_INFO, keyInfo)
-            putBoolean(NEED_RESULT, needResult)
+            if (keyInfo?.isEmpty() == false) {
+                putParcelable(KEY_INFO, keyInfo)
+                putBoolean(NEED_RESULT, needResult)
+            }
         }
 
         fun extractResultData(intent: Intent): Pair<KeyInfo?, String?> {
