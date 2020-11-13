@@ -90,7 +90,7 @@ class PsbtSignViewModel(
         }))
     }
 
-    fun signPsbt(base64: String, keyInfo: KeyInfo, seed: String?, chain: Network = Network.TEST) {
+    fun signPsbt(base64: String, keyInfo: KeyInfo, seed: String?, network: Network = Network.TEST) {
         psbtSigningLiveData.add(rxLiveDataTransformer.single(Single.fromCallable {
             val psbt = Psbt(base64)
             if (!psbt.signable) {
@@ -103,7 +103,7 @@ class PsbtSignViewModel(
             } else {
                 accountService.getSeed(keyInfo.fingerprint)
             }
-                .map { HDKey(Hex.hexToBytes(it), chain) }
+                .map { HDKey(Hex.hexToBytes(it), network) }
                 .flatMap { hdKey ->
                     transactionService.signPsbt(
                         psbt,

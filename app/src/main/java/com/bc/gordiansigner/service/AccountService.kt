@@ -46,9 +46,9 @@ class AccountService @Inject constructor(
         }.subscribeOn(Schedulers.computation())
     }
 
-    fun getSeed(fingerprint: String, chain: Network = Network.TEST) =
+    fun getSeed(fingerprint: String, network: Network = Network.TEST) =
         getSeeds()
-            .map { set -> set.map { Pair(it, HDKey(Hex.hexToBytes(it), chain)) } }
+            .map { set -> set.map { Pair(it, HDKey(Hex.hexToBytes(it), network)) } }
             .map { set -> set.first { it.second.fingerprintHex == fingerprint } }
             .flatMap { updateKeyInfoLastUsed(it.second.fingerprintHex).andThen(Single.just(it.first)) }
 
@@ -78,7 +78,7 @@ class AccountService @Inject constructor(
 
     fun deleteSeed(fingerprintHex: String): Completable = getSeeds().flatMapCompletable { seeds ->
         seeds.firstOrNull {
-            HDKey(Hex.hexToBytes(it), Network.TEST).fingerprintHex == fingerprintHex
+            HDKey.fingerprintFromSeed(Hex.hexToBytes(it)) == fingerprintHex
         }?.let { seed ->
             val newSeeds = seeds.toMutableSet().apply { remove(seed) }
             saveSeeds(newSeeds).andThen(updateKeyInfoSavingState(fingerprintHex))
@@ -112,10 +112,10 @@ class AccountService @Inject constructor(
         }
 
     private fun saveSeed(seed: String) =
-        getSeeds().flatMap { keys ->
-            val seeds = keys.toMutableSet()
-            if (seeds.add(seed)) {
-                saveSeeds(seeds).andThen(Single.just(seed))
+        getSeeds().flatMap { seeds ->
+            val mutableSeeds = seeds.toMutableSet()
+            if (mutableSeeds.add(seed)) {
+                saveSeeds(mutableSeeds).andThen(Single.just(seed))
             } else {
                 Single.just(seed)
             }
@@ -136,11 +136,11 @@ class AccountService @Inject constructor(
         saveKeysInfo(keyInfoSet).andThen(Single.just(keyInfo))
     }
 
-    private fun saveSeeds(keys: Set<String>) =
+    private fun saveSeeds(seeds: Set<String>) =
         fileStorageApi.SUPER_SECURE.rxCompletable { gateway ->
             gateway.writeOnFilesDir(
                 SEED_KEY_FILE,
-                newGsonInstance().toJson(keys.map { it }).toByteArray()
+                newGsonInstance().toJson(seeds.map { it }).toByteArray()
             )
         }
 

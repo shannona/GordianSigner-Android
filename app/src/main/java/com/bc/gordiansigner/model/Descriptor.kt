@@ -93,8 +93,7 @@ data class Descriptor(
         if (isCompleted()) throw ACCOUNT_MAP_COMPLETED_ERROR
         if (validFingerprints().contains(hdKey.fingerprintHex)) throw ACCOUNT_MAP_ALREADY_FILLED_ERROR
         val keyAccount = hdKey.derive(firstEmptyDerivationPath())
-        Log.d("123123",  Wally.hex_from_bytes(keyAccount.pubKey))
-        updatePartialAccountMap(hdKey.fingerprintHex, Wally.hex_from_bytes(keyAccount.pubKey))
+        updatePartialAccountMap(hdKey.fingerprintHex, keyAccount.xpub)
     }
 
     fun validFingerprints() = fingerprints

@@ -35,7 +35,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
         private const val TAG = "AddAccountActivity"
         private const val KEY_INFO = "key_info"
         private const val NEED_RESULT = "need_result"
-        private const val KEY_SEED = "key_xprv"
+        private const val KEY_SEED = "key_seed"
 
         fun getBundle(keyInfo: KeyInfo?, needResult: Boolean = true) = Bundle().apply {
             if (keyInfo?.isEmpty() == false) {
