@@ -98,7 +98,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         }
     }
 
-    private fun signPsbt(keyInfo: KeyInfo? = null, xprv: String? = null) {
+    private fun signPsbt(keyInfo: KeyInfo? = null, seed: String? = null) {
         val psbt = editText.text.toString()
         if (psbt.isBlank()) return
 
@@ -113,7 +113,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                 ),
                 positive = getString(R.string.sign),
                 positiveEvent = {
-                    viewModel.signPsbt(psbt, keyInfo, xprv)
+                    viewModel.signPsbt(psbt, keyInfo, seed)
                 }
             )
         } else {
@@ -179,7 +179,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
             }
         })
 
-        viewModel.getKeyToSignLiveData.asLiveData().observe(this, Observer { res ->
+        viewModel.keyToSignCheckingLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
                     res.data()?.let { keyInfo ->
@@ -319,8 +319,8 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                 }
                 REQUEST_CODE_INPUT_KEY -> {
                     data?.let {
-                        val (keyInfo, xprv) = AddAccountActivity.extractResultData(it)
-                        signPsbt(keyInfo, xprv)
+                        val (keyInfo, seed) = AddAccountActivity.extractResultData(it)
+                        signPsbt(keyInfo, seed)
                     }
                 }
                 else -> {

@@ -104,7 +104,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/save_private_key"
+            android:text="@string/save_seed"
             app:layout_constraintBottom_toTopOf="@id/scSavePrivate"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

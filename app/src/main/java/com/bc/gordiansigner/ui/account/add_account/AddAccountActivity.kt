@@ -34,7 +34,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
         private const val TAG = "AddAccountActivity"
         private const val KEY_INFO = "key_info"
         private const val NEED_RESULT = "need_result"
-        private const val KEY_XPRV = "key_xprv"
+        private const val KEY_SEED = "key_xprv"
 
         fun getBundle(keyInfo: KeyInfo?, needResult: Boolean = true) = Bundle().apply {
             if (keyInfo?.isEmpty() == false) {
@@ -45,8 +45,8 @@ class AddAccountActivity : BaseAppCompatActivity() {
 
         fun extractResultData(intent: Intent): Pair<KeyInfo?, String?> {
             val keyInfo = intent.getParcelableExtra<KeyInfo>(KEY_INFO)
-            val xprv = intent.getStringExtra(KEY_XPRV)
-            return Pair(keyInfo, xprv)
+            val seed = intent.getStringExtra(KEY_SEED)
+            return Pair(keyInfo, seed)
         }
     }
 
@@ -195,7 +195,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
                                 navigator.anim(RIGHT_LEFT).finishActivity()
                             } else {
                                 val intent = Intent().apply {
-                                    putExtra(KEY_XPRV, xprv)
+                                    putExtra(KEY_SEED, xprv)
                                     putExtra(KEY_INFO, keyInfo)
                                 }
                                 navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)

@@ -2,6 +2,8 @@ package com.bc.gordiansigner.ui.sign
 
 import androidx.lifecycle.Lifecycle
 import com.bc.gordiansigner.helper.Error.PSBT_UNABLE_TO_SIGN_ERROR
+import com.bc.gordiansigner.helper.Hex
+import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.model.HDKey
@@ -24,7 +26,7 @@ class PsbtSignViewModel(
 ) : BaseViewModel(lifecycle) {
 
     internal val psbtSigningLiveData = CompositeLiveData<String>()
-    internal val getKeyToSignLiveData = CompositeLiveData<KeyInfo>()
+    internal val keyToSignCheckingLiveData = CompositeLiveData<KeyInfo>()
     internal val psbtCheckingLiveData = CompositeLiveData<Pair<List<KeyInfo>, Psbt>>()
 
     fun checkPsbt(base64: String) {
@@ -47,7 +49,7 @@ class PsbtSignViewModel(
                             if (index != -1) {
                                 keysInfo[index]
                             } else {
-                                KeyInfo.unknown(bip32Deriv.fingerprintHex)
+                                KeyInfo.newUnknownInstance(bip32Deriv.fingerprintHex)
                             }
                         }
                         Pair(joinedSigners, psbt)
@@ -57,7 +59,7 @@ class PsbtSignViewModel(
     }
 
     fun getKeyToSign(base64: String) {
-        getKeyToSignLiveData.add(rxLiveDataTransformer.single(Single.fromCallable {
+        keyToSignCheckingLiveData.add(rxLiveDataTransformer.single(Single.fromCallable {
             val psbt = Psbt(base64)
             if (!psbt.signable) {
                 throw PSBT_UNABLE_TO_SIGN_ERROR
@@ -66,18 +68,18 @@ class PsbtSignViewModel(
         }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io()).flatMap { psbt ->
             accountService.getKeysInfo().flatMap { keysInfo ->
                 if (keysInfo.isEmpty()) {
-                    Single.just(KeyInfo.empty())
+                    Single.just(KeyInfo.newEmptyInstance())
                 } else {
                     val inputBip32DerivFingerprints =
                         psbt.inputBip32Derivs.map { it.fingerprintHex }
                     val keyInfo =
                         keysInfo.firstOrNull { inputBip32DerivFingerprints.contains(it.fingerprint) }
                     if (keyInfo == null) {
-                        Single.just(KeyInfo.empty())
+                        Single.just(KeyInfo.newEmptyInstance())
                     } else {
                         val contactsKeyInfo = inputBip32DerivFingerprints
                             .filter { it != keyInfo.fingerprint }
-                            .map { KeyInfo.default(it, "", false) }
+                            .map { KeyInfo.newDefaultInstance(it, "", false) }
                             .toSet()
 
                         contactService.appendContactKeysInfo(contactsKeyInfo)
@@ -88,7 +90,7 @@ class PsbtSignViewModel(
         }))
     }
 
-    fun signPsbt(base64: String, keyInfo: KeyInfo, xprv: String?) {
+    fun signPsbt(base64: String, keyInfo: KeyInfo, seed: String?, chain: Network = Network.TEST) {
         psbtSigningLiveData.add(rxLiveDataTransformer.single(Single.fromCallable {
             val psbt = Psbt(base64)
             if (!psbt.signable) {
@@ -96,16 +98,18 @@ class PsbtSignViewModel(
             }
             psbt
         }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io()).flatMap { psbt ->
-            if (xprv != null) {
-                Single.just(HDKey(xprv))
+            if (seed != null) {
+                Single.just(seed)
             } else {
-                accountService.getHDKey(keyInfo.fingerprint)
-            }.flatMap { hdKey ->
-                transactionService.signPsbt(
-                    psbt,
-                    hdKey
-                )
+                accountService.getSeed(keyInfo.fingerprint)
             }
+                .map { HDKey(Hex.hexToBytes(it), chain) }
+                .flatMap { hdKey ->
+                    transactionService.signPsbt(
+                        psbt,
+                        hdKey
+                    )
+                }
         }))
     }
 }

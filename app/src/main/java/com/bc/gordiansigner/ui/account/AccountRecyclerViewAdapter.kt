@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bc.gordiansigner.R
+import com.bc.gordiansigner.helper.SIMPLE_DATE_TIME_FORMAT
 import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.model.KeyInfo
 import kotlinx.android.synthetic.main.item_signer.view.*

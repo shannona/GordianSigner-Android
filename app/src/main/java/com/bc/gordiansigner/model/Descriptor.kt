@@ -1,11 +1,13 @@
 package com.bc.gordiansigner.model
 
+import android.util.Log
 import com.bc.gordiansigner.helper.Error.ACCOUNT_MAP_ALREADY_FILLED_ERROR
 import com.bc.gordiansigner.helper.Error.ACCOUNT_MAP_COMPLETED_ERROR
 import com.bc.gordiansigner.helper.Error.BAD_DESCRIPTOR_ERROR
 import com.bc.gordiansigner.helper.Error.UNSUPPORTED_FORMAT_ERROR
 import com.bc.gordiansigner.helper.FINGERPRINT_REGEX
 import com.bc.gordiansigner.helper.Network
+import com.blockstream.libwally.Wally
 
 // MARK: This parser is designed to work with descriptors, we try and make it extensible and this can be an area to be improved so that it handles any descriptor but for the purposes of the app we can make a few assumptions as we know what type of descriptors the wallet will produce.
 
@@ -91,7 +93,8 @@ data class Descriptor(
         if (isCompleted()) throw ACCOUNT_MAP_COMPLETED_ERROR
         if (validFingerprints().contains(hdKey.fingerprintHex)) throw ACCOUNT_MAP_ALREADY_FILLED_ERROR
         val keyAccount = hdKey.derive(firstEmptyDerivationPath())
-        updatePartialAccountMap(hdKey.fingerprintHex, keyAccount.xpub)
+        Log.d("123123",  Wally.hex_from_bytes(keyAccount.pubKey))
+        updatePartialAccountMap(hdKey.fingerprintHex, Wally.hex_from_bytes(keyAccount.pubKey))
     }
 
     fun validFingerprints() = fingerprints

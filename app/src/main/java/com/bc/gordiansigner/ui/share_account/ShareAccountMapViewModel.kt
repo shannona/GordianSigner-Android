@@ -1,8 +1,7 @@
 package com.bc.gordiansigner.ui.share_account
 
 import androidx.lifecycle.Lifecycle
-import com.bc.gordiansigner.helper.ext.SIMPLE_DATE_TIME_FORMAT
-import com.bc.gordiansigner.helper.ext.toString
+import com.bc.gordiansigner.helper.Hex
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.model.Descriptor
@@ -65,15 +64,15 @@ class ShareAccountMapViewModel(
         )
     }
 
-    fun updateAccountMap(accountMapString: String, xprv: String) {
+    fun updateAccountMap(accountMapString: String, seed: String) {
         accountMapLiveData.add(rxLiveDataTransformer.single(
             accountMapService.getAccountMapInfo(accountMapString)
                 .flatMap { (accountMap, descriptor) ->
-                    val hdKey = HDKey(xprv)
+                    val hdKey = HDKey(Hex.hexToBytes(seed), descriptor.network)
 
                     val keyInfoSet = descriptor.validFingerprints()
                         .map {
-                            KeyInfo.default(it, "", false)
+                            KeyInfo.newDefaultInstance(it, "", false)
                         }.toSet()
 
                     if (keyInfoSet.isNotEmpty()) {

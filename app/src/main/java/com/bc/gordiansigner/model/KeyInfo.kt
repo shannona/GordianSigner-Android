@@ -27,9 +27,9 @@ data class KeyInfo(
 ): Parcelable {
 
     companion object {
-        fun empty() = KeyInfo("", "", null, false)
-        fun unknown(fingerprint: String) = KeyInfo(fingerprint, "unknown", null, false)
-        fun default(fingerprint: String, alias: String, isSaved: Boolean) = KeyInfo(fingerprint, alias, Date(), isSaved)
+        fun newEmptyInstance() = KeyInfo("", "", null, false)
+        fun newUnknownInstance(fingerprint: String) = KeyInfo(fingerprint, "unknown", null, false)
+        fun newDefaultInstance(fingerprint: String, alias: String, isSaved: Boolean) = KeyInfo(fingerprint, alias, Date(), isSaved)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -62,7 +62,7 @@ class ContactDialog(
                 val regex = Regex(FINGERPRINT_REGEX)
                 val fingerprint = etFingerprint.text.toString().toLowerCase(Locale.ENGLISH)
                 if (regex.matches(fingerprint)) {
-                    val keyInfo = KeyInfo.default(
+                    val keyInfo = KeyInfo.newDefaultInstance(
                         fingerprint,
                         etAlias.text.toString(),
                         false

@@ -20,14 +20,14 @@ class AddAccountViewModel(
     fun importWallet(phrase: String, alias: String, saveXpriv: Boolean, keyInfo: KeyInfo?) {
         importAccountLiveData.add(
             rxLiveDataTransformer.single(
-                accountService.importHDKeyWallet(phrase).flatMap { key ->
-                    val importedKeyInfo = KeyInfo.default(key.fingerprintHex, alias, saveXpriv)
+                accountService.importHDKeyWallet(phrase).flatMap { (seed, key) ->
+                    val importedKeyInfo = KeyInfo.newDefaultInstance(key.fingerprintHex, alias, saveXpriv)
 
                     if (keyInfo != null && keyInfo != importedKeyInfo) {
                         Single.error(FINGERPRINT_NOT_MATCH_ERROR)
                     } else {
-                        accountService.saveKey(importedKeyInfo, key)
-                            .map { Pair(importedKeyInfo, it.xprv) }
+                        accountService.saveSeedAndKeyInfo(importedKeyInfo, seed)
+                            .map { Pair(importedKeyInfo, it) }
                     }
                 }
             )
