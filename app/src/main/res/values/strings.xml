@@ -106,4 +106,6 @@
     <string name="unnamed">Unnamed</string>
     <string name="fingerprint_format">📝 Fingerprint: %1$s</string>
     <string name="last_used_format">⏱️ Last used: %1$s</string>
+    <string name="please_write_down_and_save_your_12_recovery_words">Please write down and save your 12 recovery words.\n\nOnce you hit the add signer button, these words will be deleted permanently from your device! ⚠️</string>
+    <string name="generated_successfully">Generated successfully</string>
 </resources>

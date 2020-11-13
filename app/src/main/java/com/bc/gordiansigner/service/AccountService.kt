@@ -28,7 +28,7 @@ class AccountService @Inject constructor(
         private const val KEY_INFO_FILE = "keyinfo.secret"
     }
 
-    fun importHDKeyWallet(
+    fun importMnemonic(
         mnemonic: String,
         network: Network = Network.TEST
     ): Single<Pair<String, HDKey>> {
@@ -38,12 +38,11 @@ class AccountService @Inject constructor(
         }.subscribeOn(Schedulers.computation())
     }
 
-    fun generateHDKeyWallet(network: Network): Single<HDKey> {
+    fun generateMnemonic(): Single<String> {
         return Single.fromCallable {
             val entropy = ByteArray(16)
             SecureRandom().nextBytes(entropy)
-            val seed = Bip39Mnemonic(entropy).seed
-            HDKey(seed, network)
+            Bip39Mnemonic(entropy).mnemonic
         }.subscribeOn(Schedulers.computation())
     }
 

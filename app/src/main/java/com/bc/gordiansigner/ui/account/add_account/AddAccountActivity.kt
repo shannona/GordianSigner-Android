@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
@@ -98,18 +99,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
             val words = wordsString.split(" ")
             this.hideKeyBoard()
 
-            if (words.all { bip39Words.contains(it) }) {
-                words.forEach { word ->
-                    addedWords.add(word)
-                    wordsEditText.append("${if (addedWords.size > 1) "\n" else ""}${addedWords.size}. $word")
-                }
-
-                autoCompleteCharCount = -1
-                editText.setText("")
-                editText.hint = getString(R.string.add_word_format, addedWords.size + 1)
-            } else {
-                dialogController.alert(R.string.warning, R.string.incorrect_words)
-            }
+            processWords(words)
         }
 
         buttonRemove.setSafetyOnclickListener {
@@ -239,6 +229,45 @@ class AddAccountActivity : BaseAppCompatActivity() {
                 }
             }
         })
+
+        viewModel.generateSignerLiveData.asLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    res.data()?.let { mnemonic ->
+                        addedWords.clear()
+                        wordsEditText.text = ""
+
+                        val words = mnemonic.split(" ")
+                        this.hideKeyBoard()
+                        processWords(words)
+
+                        dialogController.alert(
+                            R.string.generated_successfully,
+                            R.string.please_write_down_and_save_your_12_recovery_words
+                        )
+                    }
+                }
+
+                res.isError() -> {
+                    dialogController.alert(res.throwable())
+                }
+            }
+        })
+    }
+
+    private fun processWords(words: List<String>) {
+        if (words.all { bip39Words.contains(it) }) {
+            words.forEach { word ->
+                addedWords.add(word)
+                wordsEditText.append("${if (addedWords.size > 1) "\n" else ""}${addedWords.size}. $word")
+            }
+
+            autoCompleteCharCount = -1
+            editText.setText("")
+            editText.hint = getString(R.string.add_word_format, addedWords.size + 1)
+        } else {
+            dialogController.alert(R.string.warning, R.string.incorrect_words)
+        }
     }
 
     private fun importWallet() {
@@ -256,10 +285,20 @@ class AddAccountActivity : BaseAppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (keyInfo != null) return false
+
+        menuInflater.inflate(R.menu.add_account_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 navigator.anim(RIGHT_LEFT).finishActivity()
+            }
+            R.id.action_generate -> {
+                viewModel.generateSigner()
             }
         }
 
