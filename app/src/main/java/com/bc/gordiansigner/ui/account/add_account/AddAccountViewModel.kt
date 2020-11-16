@@ -15,20 +15,31 @@ class AddAccountViewModel(
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
 
-    internal val importAccountLiveData = CompositeLiveData<String>()
+    internal val importAccountLiveData = CompositeLiveData<Pair<KeyInfo, String>>()
+    internal val generateSignerLiveData = CompositeLiveData<String>()
 
-    fun importWallet(phrase: String, alias: String, saveXpv: Boolean, keyInfo: KeyInfo?) {
+    fun importWallet(phrase: String, alias: String, saveXpriv: Boolean, keyInfo: KeyInfo?) {
         importAccountLiveData.add(
             rxLiveDataTransformer.single(
-                accountService.importHDKeyWallet(phrase).flatMap { key ->
-                    val importedKeyInfo = KeyInfo(key.fingerprintHex, alias, saveXpv)
+                accountService.importMnemonic(phrase).flatMap { (seed, key) ->
+                    val importedKeyInfo =
+                        KeyInfo.newDefaultInstance(key.fingerprintHex, alias, saveXpriv)
 
                     if (keyInfo != null && keyInfo != importedKeyInfo) {
                         Single.error(FINGERPRINT_NOT_MATCH_ERROR)
                     } else {
-                        accountService.saveKey(importedKeyInfo, key).map { it.xprv }
+                        accountService.saveSeedAndKeyInfo(importedKeyInfo, seed)
+                            .map { Pair(importedKeyInfo, it) }
                     }
                 }
+            )
+        )
+    }
+
+    fun generateSigner() {
+        generateSignerLiveData.add(
+            rxLiveDataTransformer.single(
+                accountService.generateMnemonic()
             )
         )
     }

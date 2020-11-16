@@ -1,18 +1,20 @@
 package com.bc.gordiansigner.ui.share_account
 
 import androidx.lifecycle.Lifecycle
+import com.bc.gordiansigner.helper.Hex
 import com.bc.gordiansigner.helper.livedata.CompositeLiveData
 import com.bc.gordiansigner.helper.livedata.RxLiveDataTransformer
 import com.bc.gordiansigner.model.Descriptor
 import com.bc.gordiansigner.model.HDKey
 import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.service.AccountMapService
-import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.service.AccountService
+import com.bc.gordiansigner.service.ContactService
 import com.bc.gordiansigner.ui.BaseViewModel
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import java.util.*
 
 class ShareAccountMapViewModel(
     lifecycle: Lifecycle,
@@ -43,7 +45,12 @@ class ShareAccountMapViewModel(
                                     if (index != -1) {
                                         keysInfo[index]
                                     } else {
-                                        KeyInfo(fingerprint, "unknown", false)
+                                        KeyInfo(
+                                            fingerprint,
+                                            "unknown",
+                                            Date(),
+                                            false
+                                        )
                                     }
                                 }
                                 Pair(joinedSigner, descriptor)
@@ -57,14 +64,16 @@ class ShareAccountMapViewModel(
         )
     }
 
-    fun updateAccountMap(accountMapString: String, xprv: String) {
+    fun updateAccountMap(accountMapString: String, seed: String) {
         accountMapLiveData.add(rxLiveDataTransformer.single(
             accountMapService.getAccountMapInfo(accountMapString)
                 .flatMap { (accountMap, descriptor) ->
-                    val hdKey = HDKey(xprv)
+                    val hdKey = HDKey(Hex.hexToBytes(seed), descriptor.network)
 
                     val keyInfoSet = descriptor.validFingerprints()
-                        .map { KeyInfo(it, "", false) }.toSet()
+                        .map {
+                            KeyInfo.newDefaultInstance(it, "", false)
+                        }.toSet()
 
                     if (keyInfoSet.isNotEmpty()) {
                         contactService.appendContactKeysInfo(keyInfoSet)

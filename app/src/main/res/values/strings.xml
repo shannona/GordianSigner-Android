@@ -80,9 +80,9 @@
     <string name="do_you_want_to_delete_the_whole_key">Do you want to delete the whole key or delete the private key only?</string>
     <string name="delete">Delete</string>
     <string name="alias">Alias</string>
-    <string name="save_private_key">Save Private Key?</string>
+    <string name="save_seed">Save Seed?</string>
     <string name="fingerprint_alias_format">%1$s (%2$s)</string>
-    <string name="delete_private_key">Delete private key</string>
+    <string name="delete_seed">Delete seed</string>
     <string name="signer_format">Signer: %1$s (%2$s)</string>
     <string name="saved_contacts">Saved Contacts</string>
     <string name="create_new_contact">Create New Contact</string>
@@ -99,4 +99,13 @@
     <string name="content_is_invalid_please_check_and_try_again">Content is invalid. Please check and try again!</string>
     <string name="please_input_your_recovery_words">Please input your recovery words!</string>
     <string name="incorrect_words">Incorrect words!</string>
+
+    <string name="confirm_to_sign_psbt">Confirm to Sign PSBT?</string>
+    <string name="please_review_your_info_before_signing">"Please review your info before signing. You will sign the PSBT with your key:\n\n 🔑 %1$s (%2$s)"</string>
+    <string name="fps">%1$d fps</string>
+    <string name="unnamed">Unnamed</string>
+    <string name="fingerprint_format">📝 Fingerprint: %1$s</string>
+    <string name="last_used_format">⏱️ Last used: %1$s</string>
+    <string name="please_write_down_and_save_your_12_recovery_words">Please write down and save your 12 recovery words.\n\nOnce you hit the add signer button, these words will be deleted permanently from your device! ⚠️</string>
+    <string name="generated_successfully">Generated successfully</string>
 </resources>

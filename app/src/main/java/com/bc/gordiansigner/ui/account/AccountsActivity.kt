@@ -84,7 +84,7 @@ class AccountsActivity : BaseAppCompatActivity() {
                         deletePrivateKeyOnly = false
                         viewModel.deleteKeyInfo(deletedAccountFingerprint)
                     },
-                    neutral = R.string.delete_private_key,
+                    neutral = R.string.delete_seed,
                     neutralEvent = {
                         deletePrivateKeyOnly = true
                         viewModel.deleteHDKey(deletedAccountFingerprint)
@@ -109,7 +109,7 @@ class AccountsActivity : BaseAppCompatActivity() {
             adapter.setItemSelectedListener { keyInfo ->
                 if (keyInfo.isSaved) {
                     selectedAccountFingerprint = keyInfo.fingerprint
-                    viewModel.getHDKeyXprv(selectedAccountFingerprint)
+                    viewModel.getSeed(selectedAccountFingerprint)
                 } else {
                     val bundle = AddAccountActivity.getBundle(keyInfo)
                     navigator.anim(RIGHT_LEFT).startActivityForResult(
@@ -214,11 +214,11 @@ class AccountsActivity : BaseAppCompatActivity() {
             }
         })
 
-        viewModel.hdKeyXprvLiveData.asLiveData().observe(this, Observer { res ->
+        viewModel.getSeedLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    res.data()?.let { xprv ->
-                        val intent = Intent().apply { putExtra(SELECTED_KEY, xprv) }
+                    res.data()?.let { seed ->
+                        val intent = Intent().apply { putExtra(SELECTED_KEY, seed) }
                         navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
                     }
                 }
@@ -235,7 +235,7 @@ class AccountsActivity : BaseAppCompatActivity() {
                                     R.string.auth_required,
                                     R.string.auth_for_getting_your_account_key,
                                     successCallback = {
-                                        viewModel.getHDKeyXprv(selectedAccountFingerprint)
+                                        viewModel.getSeed(selectedAccountFingerprint)
                                     },
                                     failedCallback = { code ->
                                         if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
@@ -314,7 +314,7 @@ class AccountsActivity : BaseAppCompatActivity() {
             when (requestCode) {
                 REQUEST_CODE_INPUT_KEY -> {
                     data?.let {
-                        val xprv = AddAccountActivity.extractResultData(it) ?: return@let
+                        val (_, xprv) = AddAccountActivity.extractResultData(it)
                         val intent = Intent().apply { putExtra(SELECTED_KEY, xprv) }
                         navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
                     }
@@ -325,7 +325,7 @@ class AccountsActivity : BaseAppCompatActivity() {
             }
         } else if (resultCode != Activity.RESULT_CANCELED && requestCode == KeyStoreHelper.ENROLLMENT_REQUEST_CODE) {
             // resultCode is 3 after biometric is enrolled
-            viewModel.getHDKeyXprv(selectedAccountFingerprint)
+            viewModel.getSeed(selectedAccountFingerprint)
         }
     }
 

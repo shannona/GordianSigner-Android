@@ -1,5 +1,6 @@
 package com.bc.gordiansigner.service
 
+import com.bc.gordiansigner.helper.Hex
 import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.helper.ext.fromJson
 import com.bc.gordiansigner.helper.ext.newGsonInstance
@@ -14,6 +15,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.security.SecureRandom
+import java.util.*
 import javax.inject.Inject
 
 class AccountService @Inject constructor(
@@ -22,38 +24,42 @@ class AccountService @Inject constructor(
 ) : BaseService(sharedPrefApi, fileStorageApi) {
 
     companion object {
-        private const val XPRIV_KEY_FILE = "xpriv.secret"
+        private const val SEED_KEY_FILE = "seed.secret"
         private const val KEY_INFO_FILE = "keyinfo.secret"
     }
 
-    fun importHDKeyWallet(mnemonic: String, network: Network = Network.TEST): Single<HDKey> {
+    fun importMnemonic(
+        mnemonic: String,
+        network: Network = Network.TEST
+    ): Single<Pair<String, HDKey>> {
         return Single.fromCallable {
             val seed = Bip39Mnemonic(mnemonic).seed
-            HDKey(seed, network)
+            Pair(Hex.hexFromBytes(seed), HDKey(seed, network))
         }.subscribeOn(Schedulers.computation())
     }
 
-    fun generateHDKeyWallet(network: Network): Single<HDKey> {
+    fun generateMnemonic(): Single<String> {
         return Single.fromCallable {
             val entropy = ByteArray(16)
             SecureRandom().nextBytes(entropy)
-            val seed = Bip39Mnemonic(entropy).seed
-            HDKey(seed, network)
+            Bip39Mnemonic(entropy).mnemonic
         }.subscribeOn(Schedulers.computation())
     }
 
-    fun getHDKey(fingerprint: String) =
-        getHDKeys().map { keys -> keys.first { it.fingerprintHex == fingerprint } }
+    fun getSeed(fingerprint: String, network: Network = Network.TEST) =
+        getSeeds()
+            .map { set -> set.map { Pair(it, HDKey(Hex.hexToBytes(it), network)) } }
+            .map { set -> set.first { it.second.fingerprintHex == fingerprint } }
+            .flatMap { updateKeyInfoLastUsed(it.second.fingerprintHex).andThen(Single.just(it.first)) }
 
-    fun getHDKeys() =
-        fileStorageApi.SUPER_SECURE.rxSingle { gateway ->
-            val privs = gateway.readOnFilesDir(XPRIV_KEY_FILE)
-            if (privs.isEmpty()) {
-                emptyList()
-            } else {
-                newGsonInstance().fromJson<List<String>>(String(privs))
-            }
-        }.map { set -> set.map { HDKey(it) } }
+    private fun getSeeds() = fileStorageApi.SUPER_SECURE.rxSingle { gateway ->
+        val seeds = gateway.readOnFilesDir(SEED_KEY_FILE)
+        if (seeds.isEmpty()) {
+            emptyList()
+        } else {
+            newGsonInstance().fromJson<List<String>>(String(seeds))
+        }
+    }
 
     fun getKeysInfo() = fileStorageApi.SECURE.rxSingle { gateway ->
         val json = gateway.readOnFilesDir(KEY_INFO_FILE)
@@ -64,45 +70,54 @@ class AccountService @Inject constructor(
         }
     }
 
-    fun saveKey(keyInfo: KeyInfo, hdKey: HDKey) = if (keyInfo.isSaved) {
-        saveHDKey(hdKey)
+    fun saveSeedAndKeyInfo(keyInfo: KeyInfo, seed: String) = if (keyInfo.isSaved) {
+        saveSeed(seed)
     } else {
-        Single.just(hdKey)
-    }.flatMap { saveKeyInfo(keyInfo).map { hdKey } }
+        Single.just(seed)
+    }.flatMap { saveKeyInfo(keyInfo).map { seed } }
 
-    fun deleteHDKey(fingerprintHex: String): Completable = getHDKeys().flatMapCompletable { keys ->
-        if (keys.any { it.fingerprintHex == fingerprintHex }) {
-            val newKeys = keys.filterNot { it.fingerprintHex == fingerprintHex }.toSet()
-            saveHDKeys(newKeys).andThen(updateKeyInfo(fingerprintHex, false))
-        } else {
-            Completable.complete()
-        }
+    fun deleteSeed(fingerprintHex: String): Completable = getSeeds().flatMapCompletable { seeds ->
+        seeds.firstOrNull {
+            HDKey.fingerprintFromSeed(Hex.hexToBytes(it)) == fingerprintHex
+        }?.let { seed ->
+            val newSeeds = seeds.toMutableSet().apply { remove(seed) }
+            saveSeeds(newSeeds).andThen(updateKeyInfoSavingState(fingerprintHex))
+        } ?: Completable.complete()
     }
 
     fun deleteKeyInfo(fingerprintHex: String) = getKeysInfo().flatMapCompletable { keysInfo ->
         val currentKey = keysInfo.firstOrNull { it.fingerprint == fingerprintHex }
         currentKey?.let { keyInfo ->
             val newKeys = keysInfo.filterNot { it == keyInfo }.toSet()
-            saveKeysInfo(newKeys).andThen(if (keyInfo.isSaved) deleteHDKey(fingerprintHex) else Completable.complete())
+            saveKeysInfo(newKeys).andThen(if (keyInfo.isSaved) deleteSeed(fingerprintHex) else Completable.complete())
         } ?: Completable.complete()
     }
 
-    private fun updateKeyInfo(fingerprint: String, isSaved: Boolean): Completable =
+    private fun updateKeyInfoSavingState(fingerprint: String): Completable =
         getKeysInfo().flatMapCompletable { keysInfo ->
             val keyInfoSet = keysInfo.toMutableSet()
             keyInfoSet.firstOrNull { it.fingerprint == fingerprint }?.let {
-                it.isSaved = isSaved
+                it.isSaved = false
                 saveKeysInfo(keyInfoSet)
             } ?: Completable.complete()
         }
 
-    private fun saveHDKey(hdKey: HDKey) =
-        getHDKeys().flatMap { keys ->
-            val keySet = keys.toMutableSet()
-            if (keySet.add(hdKey)) {
-                saveHDKeys(keySet).andThen(Single.just(hdKey))
+    private fun updateKeyInfoLastUsed(fingerprint: String): Completable =
+        getKeysInfo().flatMapCompletable { keysInfo ->
+            val keyInfoSet = keysInfo.toMutableSet()
+            keyInfoSet.firstOrNull { it.fingerprint == fingerprint }?.let {
+                it.lastUsed = Date()
+                saveKeysInfo(keyInfoSet)
+            } ?: Completable.complete()
+        }
+
+    private fun saveSeed(seed: String) =
+        getSeeds().flatMap { seeds ->
+            val mutableSeeds = seeds.toMutableSet()
+            if (mutableSeeds.add(seed)) {
+                saveSeeds(mutableSeeds).andThen(Single.just(seed))
             } else {
-                Single.just(hdKey)
+                Single.just(seed)
             }
         }
 
@@ -113,6 +128,7 @@ class AccountService @Inject constructor(
                 it.alias = keyInfo.alias
             }
             it.isSaved = keyInfo.isSaved
+            it.lastUsed = keyInfo.lastUsed
         } ?: let {
             keyInfoSet.add(keyInfo)
         }
@@ -120,11 +136,11 @@ class AccountService @Inject constructor(
         saveKeysInfo(keyInfoSet).andThen(Single.just(keyInfo))
     }
 
-    private fun saveHDKeys(keys: Set<HDKey>) =
+    private fun saveSeeds(seeds: Set<String>) =
         fileStorageApi.SUPER_SECURE.rxCompletable { gateway ->
             gateway.writeOnFilesDir(
-                XPRIV_KEY_FILE,
-                newGsonInstance().toJson(keys.map { it.xprv }).toByteArray()
+                SEED_KEY_FILE,
+                newGsonInstance().toJson(seeds.map { it }).toByteArray()
             )
         }
 

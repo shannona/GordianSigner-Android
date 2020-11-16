@@ -17,7 +17,7 @@ class AccountsViewModel(
     internal val keyInfoLiveData = CompositeLiveData<List<KeyInfo>>()
     internal val deleteKeysLiveData = CompositeLiveData<String>()
     internal val updateKeysLiveData = CompositeLiveData<KeyInfo>()
-    internal val hdKeyXprvLiveData = CompositeLiveData<String>()
+    internal val getSeedLiveData = CompositeLiveData<String>()
 
     fun fetchKeysInfo() {
         keyInfoLiveData.add(
@@ -38,14 +38,14 @@ class AccountsViewModel(
     fun deleteHDKey(fingerprintHex: String) {
         deleteKeysLiveData.add(
             rxLiveDataTransformer.single(
-                accountService.deleteHDKey(fingerprintHex).andThen(Single.just(fingerprintHex))
+                accountService.deleteSeed(fingerprintHex).andThen(Single.just(fingerprintHex))
             )
         )
     }
 
-    fun getHDKeyXprv(fingerprint: String) {
-        hdKeyXprvLiveData.add(rxLiveDataTransformer.single(
-            accountService.getHDKey(fingerprint).map { it.xprv }
+    fun getSeed(fingerprint: String) {
+        getSeedLiveData.add(rxLiveDataTransformer.single(
+            accountService.getSeed(fingerprint)
         ))
     }
 

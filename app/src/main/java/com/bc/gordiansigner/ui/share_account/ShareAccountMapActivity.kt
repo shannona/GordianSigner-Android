@@ -47,7 +47,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
     internal lateinit var dialogController: DialogController
 
     private var export = false
-    private var selectedXprv = ""
+    private var selectedSeed = ""
 
     override fun layoutRes() = R.layout.activity_share_account_map
 
@@ -188,7 +188,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
     private fun updateAccountMap() {
         val accountMapJson = editText.text.toString()
-        viewModel.updateAccountMap(accountMapJson, selectedXprv)
+        viewModel.updateAccountMap(accountMapJson, selectedSeed)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -231,7 +231,7 @@ class ShareAccountMapActivity : BaseAppCompatActivity() {
 
                 REQUEST_CODE_SELECT_KEY -> {
                     data?.let {
-                        selectedXprv = AccountsActivity.extractResultData(it) ?: return
+                        selectedSeed = AccountsActivity.extractResultData(it) ?: return
 
                         updateAccountMap()
                     }

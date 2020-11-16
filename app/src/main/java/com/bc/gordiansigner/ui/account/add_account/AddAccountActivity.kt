@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
@@ -34,14 +35,20 @@ class AddAccountActivity : BaseAppCompatActivity() {
         private const val TAG = "AddAccountActivity"
         private const val KEY_INFO = "key_info"
         private const val NEED_RESULT = "need_result"
-        private const val KEY_XPRV = "key_xprv"
+        private const val KEY_SEED = "key_seed"
 
         fun getBundle(keyInfo: KeyInfo?, needResult: Boolean = true) = Bundle().apply {
-            putParcelable(KEY_INFO, keyInfo)
-            putBoolean(NEED_RESULT, needResult)
+            if (keyInfo?.isEmpty() == false) {
+                putParcelable(KEY_INFO, keyInfo)
+                putBoolean(NEED_RESULT, needResult)
+            }
         }
 
-        fun extractResultData(intent: Intent) = intent.getStringExtra(KEY_XPRV)
+        fun extractResultData(intent: Intent): Pair<KeyInfo?, String?> {
+            val keyInfo = intent.getParcelableExtra<KeyInfo>(KEY_INFO)
+            val seed = intent.getStringExtra(KEY_SEED)
+            return Pair(keyInfo, seed)
+        }
     }
 
     @Inject
@@ -92,18 +99,7 @@ class AddAccountActivity : BaseAppCompatActivity() {
             val words = wordsString.split(" ")
             this.hideKeyBoard()
 
-            if (words.all { bip39Words.contains(it) }) {
-                words.forEach { word ->
-                    addedWords.add(word)
-                    wordsEditText.append("${if (addedWords.size > 1) "\n" else ""}${addedWords.size}. $word")
-                }
-
-                autoCompleteCharCount = -1
-                editText.setText("")
-                editText.hint = getString(R.string.add_word_format, addedWords.size + 1)
-            } else {
-                dialogController.alert(R.string.warning, R.string.incorrect_words)
-            }
+            processWords(words)
         }
 
         buttonRemove.setSafetyOnclickListener {
@@ -180,15 +176,20 @@ class AddAccountActivity : BaseAppCompatActivity() {
         viewModel.importAccountLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    dialogController.alert(
-                        R.string.success,
-                        if (scSavePrivate.isChecked) R.string.seed_words_encrypted_and_saved else R.string.your_account_has_been_saved_to_the_account_book
-                    ) {
-                        if (!shouldReturnResult) {
-                            navigator.anim(RIGHT_LEFT).finishActivity()
-                        } else {
-                            val intent = Intent().apply { putExtra(KEY_XPRV, res.data()!!) }
-                            navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
+                    res.data()?.let { (keyInfo, xprv) ->
+                        dialogController.alert(
+                            R.string.success,
+                            if (scSavePrivate.isChecked) R.string.seed_words_encrypted_and_saved else R.string.your_account_has_been_saved_to_the_account_book
+                        ) {
+                            if (!shouldReturnResult) {
+                                navigator.anim(RIGHT_LEFT).finishActivity()
+                            } else {
+                                val intent = Intent().apply {
+                                    putExtra(KEY_SEED, xprv)
+                                    putExtra(KEY_INFO, keyInfo)
+                                }
+                                navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
+                            }
                         }
                     }
                 }
@@ -228,6 +229,45 @@ class AddAccountActivity : BaseAppCompatActivity() {
                 }
             }
         })
+
+        viewModel.generateSignerLiveData.asLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    res.data()?.let { mnemonic ->
+                        addedWords.clear()
+                        wordsEditText.text = ""
+
+                        val words = mnemonic.split(" ")
+                        this.hideKeyBoard()
+                        processWords(words)
+
+                        dialogController.alert(
+                            R.string.generated_successfully,
+                            R.string.please_write_down_and_save_your_12_recovery_words
+                        )
+                    }
+                }
+
+                res.isError() -> {
+                    dialogController.alert(res.throwable())
+                }
+            }
+        })
+    }
+
+    private fun processWords(words: List<String>) {
+        if (words.all { bip39Words.contains(it) }) {
+            words.forEach { word ->
+                addedWords.add(word)
+                wordsEditText.append("${if (addedWords.size > 1) "\n" else ""}${addedWords.size}. $word")
+            }
+
+            autoCompleteCharCount = -1
+            editText.setText("")
+            editText.hint = getString(R.string.add_word_format, addedWords.size + 1)
+        } else {
+            dialogController.alert(R.string.warning, R.string.incorrect_words)
+        }
     }
 
     private fun importWallet() {
@@ -245,10 +285,20 @@ class AddAccountActivity : BaseAppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (keyInfo != null) return false
+
+        menuInflater.inflate(R.menu.add_account_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 navigator.anim(RIGHT_LEFT).finishActivity()
+            }
+            R.id.action_generate -> {
+                viewModel.generateSigner()
             }
         }
 
